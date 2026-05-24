@@ -149,7 +149,9 @@ function saveStateToStorage() {
         messageSearchRecent: state.messageSearchRecent,
         groupChats: state.groupChats,
         walletBalance: state.walletBalance,
-        walletLastCollectDate: state.walletLastCollectDate
+        walletLastCollectDate: state.walletLastCollectDate,
+        groups: state.groups,
+        groupExpanded: state.groupExpanded
     });
 }
 
@@ -212,6 +214,12 @@ function loadStateFromStorage() {
         }
         if (savedData.walletLastCollectDate) {
             state.walletLastCollectDate = savedData.walletLastCollectDate;
+        }
+        if (Array.isArray(savedData.groups) && savedData.groups.length > 0) {
+            state.groups = savedData.groups;
+        }
+        if (savedData.groupExpanded) {
+            state.groupExpanded = savedData.groupExpanded;
         }
     }
     // 兼容旧数据：未显式记录好友状态时，按是否存在聊天记录推断一次

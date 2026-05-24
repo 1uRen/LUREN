@@ -33,17 +33,30 @@ function updateChatInputStickerSuggest(value, selectionStart = null, selectionEn
     state.chatInputStickerSuggestKeyword = value || '';
     state.chatInputSelectionStart = Number.isInteger(selectionStart) ? selectionStart : null;
     state.chatInputSelectionEnd = Number.isInteger(selectionEnd) ? selectionEnd : null;
-    if (!shouldRender) return;
-    state.keepChatInputFocusNextRender = true;
-    initChatApp();
+    
+    // 移动端优化：只有当贴纸建议变化时才重新渲染，避免频繁触发
+    const hasStickerKeyword = (value || '').trim().length > 0;
+    if (!shouldRender || state.chatInputComposing) return;
+    
+    // 使用防抖避免频繁渲染
+    if (window.stickerSuggestDebounceTimer) {
+        clearTimeout(window.stickerSuggestDebounceTimer);
+    }
+    window.stickerSuggestDebounceTimer = setTimeout(() => {
+        if (!state.chatInputComposing) {
+            state.keepChatInputFocusNextRender = true;
+            initChatApp();
+        }
+    }, 200);
 }
 
 function handleChatInputChange(value, selectionStart = null, selectionEnd = null, eventIsComposing = false) {
-    updateChatInputStickerSuggest(value, selectionStart, selectionEnd, !eventIsComposing);
+    // 只要不是正在输入，就更新，但渲染使用防抖
+    updateChatInputStickerSuggest(value, selectionStart, selectionEnd, false);
 }
 
 function handleChatInputKeyup(value, selectionStart = null, selectionEnd = null, keyCode = 0, eventIsComposing = false) {
-    if (eventIsComposing || Number(keyCode) === 229) return;
+    if (eventIsComposing || Number(keyCode) === 229 || state.chatInputComposing) return;
     updateChatInputStickerSuggest(value, selectionStart, selectionEnd, true);
 }
 

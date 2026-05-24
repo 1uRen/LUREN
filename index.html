@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="小手机聊天">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
     <link rel="manifest" href="./manifest.webmanifest">
     <meta name="theme-color" content="#F3DD93">
     <link rel="stylesheet" href="./chat-base.css">
@@ -15,11 +21,22 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         html, body {
             height: 100%;
+            width: 100%;
             overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            touch-action: none;
         }
 
         body {
@@ -27,7 +44,9 @@
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #f5f5f7 0%, #e8e8ed 50%, #f5f5f7 100%);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .iphone-container {
@@ -46,7 +65,7 @@
             flex-direction: column;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 768px), (max-height: 800px) {
             body {
                 justify-content: stretch;
                 align-items: stretch;
@@ -57,12 +76,19 @@
             .iphone-container {
                 width: 100vw;
                 height: 100vh;
-                height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-                max-height: none;
+                max-height: 100vh;
                 border-radius: 0;
                 box-shadow: none;
-                margin-top: env(safe-area-inset-top, 0px);
-                margin-bottom: env(safe-area-inset-bottom, 0px);
+                padding-top: env(safe-area-inset-top, 0px);
+                padding-bottom: env(safe-area-inset-bottom, 0px);
+                padding-left: env(safe-area-inset-left, 0px);
+                padding-right: env(safe-area-inset-right, 0px);
+            }
+        }
+
+        @media (max-width: 320px) {
+            .time {
+                font-size: 4.5rem !important;
             }
         }
 
@@ -498,6 +524,97 @@
                 }
             });
         }
+
+        // 移动端输入法适配
+        (function() {
+            let keyboardHeight = 0;
+            let originalViewportHeight = window.innerHeight;
+            let isKeyboardOpen = false;
+
+            function adjustForKeyboard() {
+                const container = document.querySelector('.iphone-container');
+                if (!container) return;
+                
+                const currentHeight = window.innerHeight;
+                const heightDiff = originalViewportHeight - currentHeight;
+                
+                if (heightDiff > 150) {
+                    if (!isKeyboardOpen) {
+                        isKeyboardOpen = true;
+                        keyboardHeight = heightDiff;
+                        container.style.paddingBottom = '0';
+                        container.style.height = '100%';
+                        
+                        const chatInputBar = document.querySelector('.chat-fullscreen .chat-input-stack');
+                        if (chatInputBar) {
+                            chatInputBar.style.position = 'relative';
+                        }
+                        
+                        const chatMessages = document.querySelector('.chat-fullscreen .chat-messages');
+                        if (chatMessages) {
+                            setTimeout(() => {
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                            }, 100);
+                        }
+                    }
+                } else if (isKeyboardOpen) {
+                        isKeyboardOpen = false;
+                        container.style.paddingBottom = '';
+                        container.style.height = '';
+                    }
+            }
+
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            const debouncedAdjust = debounce(adjustForKeyboard, 100);
+
+            window.addEventListener('resize', debouncedAdjust);
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    originalViewportHeight = window.innerHeight;
+                }, 300);
+            });
+
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', () => {
+                    if (window.visualViewport.height !== undefined) {
+                        const container = document.querySelector('.iphone-container');
+                        if (container && window.visualViewport.height < window.innerHeight * 0.8) {
+                            isKeyboardOpen = true;
+                            const chatMessages = document.querySelector('.chat-fullscreen .chat-messages');
+                            if (chatMessages) {
+                                setTimeout(() => {
+                                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                                }, 100);
+                            }
+                        } else {
+                            isKeyboardOpen = false;
+                        }
+                    }
+                });
+            }
+
+            document.addEventListener('focusin', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    setTimeout(() => {
+                        const chatMessages = document.querySelector('.chat-fullscreen .chat-messages');
+                        if (chatMessages) {
+                            chatMessages.scrollTop = chatMessages.scrollHeight;
+                        }
+                    }, 300);
+                }
+            });
+        })();
 
         updateTime();
         setInterval(updateTime, 1000);

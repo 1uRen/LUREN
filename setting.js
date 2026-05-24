@@ -351,10 +351,10 @@ function renderSettingsMain() {
                     </div>
                 </div>
                 <div class="settings-section">
-                    <div class="settings-item" onclick="showAbout()">
+                    <div class="settings-item" onclick="forceRefresh()">
                         <div class="settings-item-left">
-                            <div class="settings-icon about">ℹ️</div>
-                            <span class="settings-label">关于</span>
+                            <div class="settings-icon about">🔄</div>
+                            <span class="settings-label">强制刷新</span>
                         </div>
                         <div class="settings-item-right">
                             <span class="settings-arrow">›</span>
@@ -612,8 +612,35 @@ function testApiChat() {
     initChatApp();
 }
 
-function showAbout() {
-    alert('AI聊天助手 v1.0\n\n这是一个基于API的AI聊天应用。');
+function forceRefresh() {
+    // 强制刷新页面，清除缓存
+    if ('serviceWorker' in navigator) {
+        // 先注销所有 service workers
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (let registration of registrations) {
+                registration.unregister();
+            }
+        }).catch(err => {
+            console.error('注销 Service Worker 失败:', err);
+        });
+        
+        // 同时也清理缓存
+        if ('caches' in window) {
+            caches.keys().then(cacheNames => {
+                for (let cacheName of cacheNames) {
+                    caches.delete(cacheName);
+                }
+            }).catch(err => {
+                console.error('清理缓存失败:', err);
+            });
+        }
+    }
+    // 强制刷新
+    if (location.reload) {
+        location.reload(true);
+    } else {
+        location.href = location.href;
+    }
 }
 
 function goBackToHome() {

@@ -446,3 +446,165 @@ input:checked + .slider:before { transform:translateX(20px); }
 @keyframes amount-appear { 0%{transform:translate(-50%, -50%) scale(0); opacity:0} 60%{transform:translate(-50%, -50%) scale(1.2); opacity:1} 100%{transform:translate(-50%, -50%) scale(1); opacity:1} }
 .reward-amount { font-size:48px; font-weight:700; color:#fff !important; text-shadow:0 0 20px rgba(255,215,0,0.8), 0 0 40px rgba(255,215,0,0.5), 0 2px 8px rgba(0,0,0,0.3); }
 .reward-hint { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); color:rgba(255,255,255,0.6); font-size:14px; z-index:40; }
+
+/* ==========================================
+   全面移动端响应式适配
+   ========================================== */
+
+/* 小屏幕手机适配 (iPhone SE, 小米6等) */
+@media (max-width: 375px) {
+    .chat-header { padding-top: calc(45px + var(--safe-area-top, 0px)) !important; }
+    .chat-fullscreen .chat-header { padding-top: calc(45px + var(--safe-area-top, 0px)) !important; }
+    .wallet-balance-amount { font-size: 32px; }
+    .wallet-services-grid { gap: 10px; }
+    .wallet-service-icon { width: 24px; height: 24px; }
+    .wallet-service-text { font-size: 11px; }
+    .chat-fullscreen .message-content { font-size: 14px; padding: 8px 12px; }
+    .chat-fullscreen .message-sticker-img { width: 84px; height: 84px; }
+    .chat-fullscreen .message-photo-card { width: 200px; }
+    .chat-fullscreen .mock-image-note { width: 170px; }
+    .user-avatar { width: 52px; height: 52px; }
+    .profile-avatar { width: 72px; height: 72px; }
+    .sidebar-bg { height: 160px; }
+    .menu-item { padding: 12px 16px; }
+    .time-section { padding-top: 55px !important; }
+    .time { font-size: 5rem !important; }
+}
+
+/* 中等屏幕手机 (iPhone 12, 13, 14, 小米12等) */
+@media (min-width: 376px) and (max-width: 430px) {
+    .time { font-size: 5.5rem !important; }
+}
+
+/* 大屏幕手机 (iPhone Pro Max, 小米13 Ultra等) */
+@media (min-width: 431px) and (max-width: 768px) {
+    .time { font-size: 6.5rem !important; }
+    .wallet-balance-amount { font-size: 42px; }
+    .chat-fullscreen .message-content { font-size: 16px; padding: 12px 16px; }
+    .chat-fullscreen .message-sticker-img { width: 100px; height: 100px; }
+    .chat-fullscreen .message-photo-card { width: 260px; }
+}
+
+/* 横屏适配 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .time-section { padding-top: 30px !important; }
+    .time { font-size: 3.5rem !important; }
+    .icons-section { padding: 10px 20px 50px !important; }
+    .profile-bg { height: 35%; }
+    .wallet-balance-section { min-height: 30vh; }
+}
+
+/* 折叠屏/小平板适配 */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .iphone-container { width: 450px !important; max-height: 900px !important; }
+    .time { font-size: 6.5rem !important; }
+}
+
+/* 高DPI屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+}
+
+/* 超小屏幕极限适配 */
+@media (max-width: 320px) {
+    .wallet-services-grid { gap: 8px; }
+    .wallet-service-item { padding: 8px 4px; }
+    .wallet-service-text { font-size: 10px; }
+    .chat-fullscreen .message-content { font-size: 13px; padding: 7px 10px; }
+    .menu-item { padding: 10px 14px; font-size: 14px; }
+    .user-nickname { font-size: 16px; }
+}
+
+/* iOS Safari 100vh 适配 */
+@supports (-webkit-touch-callout: none) {
+    .iphone-container { height: -webkit-fill-available !important; }
+    .chat-app { height: -webkit-fill-available !important; }
+    .chat-fullscreen { height: -webkit-fill-available !important; }
+    .wallet-page { height: -webkit-fill-available !important; }
+    .profile-page { height: -webkit-fill-available !important; }
+    .sidebar { height: -webkit-fill-available !important; }
+}
+
+/* 华为/鸿蒙特殊适配 */
+@media screen and (-webkit-min-device-pixel-ratio: 3) and (min-width: 375px) {
+    :root {
+        --safe-area-top: env(safe-area-inset-top, 44px);
+        --safe-area-bottom: env(safe-area-inset-bottom, 34px);
+    }
+}
+
+/* 小米/OPPO/VIVO等安卓手机适配 */
+@media (prefers-color-scheme: light) {
+    /* 保持现有样式 */
+}
+
+/* 避免文本选择干扰用户体验 */
+input, textarea {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+}
+
+/* 改善触摸滚动性能 */
+.chat-scroll-body,
+.chat-fullscreen .chat-messages,
+.profile-card,
+.profile-zone,
+.wallet-page {
+    will-change: scroll-position;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 防止双击缩放 */
+* {
+    touch-action: manipulation;
+}
+
+/* 动画优化 - 仅在支持时启用 */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* 移动端聊天界面优化 */
+.chat-fullscreen {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.chat-fullscreen .chat-messages {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+}
+
+.chat-fullscreen .chat-input-stack,
+.chat-fullscreen .chat-tools-bar {
+    flex-shrink: 0 !important;
+    position: relative !important;
+    z-index: 10 !important;
+}
+
+.chat-fullscreen .chat-input {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+}
+
+/* 确保输入法不遮挡输入框 */
+@media (max-width: 768px) {
+    .chat-fullscreen .chat-input-stack {
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+    }
+    
+    .chat-fullscreen .chat-tools-bar {
+        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}
+
