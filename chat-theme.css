@@ -1,0 +1,52 @@
+/* text and title color alignment */
+.chat-app,
+.chat-app span,
+.chat-app div,
+.chat-app button,
+.chat-app input,
+.chat-app textarea,
+.chat-app select {
+    color:#987754;
+}
+
+.header-title,
+.group-title,
+.group-manager-title,
+.modal-title,
+.post-title,
+.profile-remark,
+.profile-zone-title,
+.signature-history-title,
+.user-nickname {
+    color:#E2D3B2;
+}
+
+/* force accent text/icons after global text color rule */
+.chat-app .switch-account,
+.chat-app .group-manage-link {
+    color:#E48C64;
+}
+
+/* add-friend plus/check icons (override .chat-app button text color) */
+.chat-app .add-friend-add-btn .add-friend-action-icon {
+    background-color:#E48C64 !important;
+}
+.chat-app .add-friend-add-btn.is-added {
+    cursor:default;
+    pointer-events:none;
+    opacity:0.95;
+}
+
+.chat-app .avatar-unread-badge,
+.chat-app .nav-unread-badge {
+    color:#ffffff;
+}
+
+.chat-app .notification-badge {
+    color:#ffffff;
+}
+
+.chat-app .message-search-more-btn,
+.chat-app .message-search-recent-clear {
+    color:#E48C64 !important;
+}

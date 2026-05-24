@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <meta name="theme-color" content="#F3DD93">
+    <link rel="stylesheet" href="./chat-base.css">
+    <link rel="stylesheet" href="./chat-components.css">
+    <link rel="stylesheet" href="./chat-search.css">
+    <link rel="stylesheet" href="./chat-theme.css">
+    <title>小手机聊天</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f5f7 0%, #e8e8ed 50%, #f5f5f7 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .iphone-container {
+            width: 375px;
+            height: 100vh;
+            max-height: 812px;
+            background: url('https://img.heliar.top/file/1779038914728_IMG_20260518_012229_edit_3883979776694321.png') center/cover no-repeat;
+            border-radius: 40px;
+            box-shadow: 
+                0 0 0 3px #d1d1d6,
+                0 0 0 5px #e8e8ed,
+                0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                justify-content: stretch;
+                align-items: stretch;
+                background: #f5f5f7;
+                padding: 0;
+            }
+
+            .iphone-container {
+                width: 100vw;
+                height: 100vh;
+                height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+                max-height: none;
+                border-radius: 0;
+                box-shadow: none;
+                margin-top: env(safe-area-inset-top, 0px);
+                margin-bottom: env(safe-area-inset-bottom, 0px);
+            }
+        }
+
+        .time-section {
+            padding-top: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .time {
+            font-size: 6rem;
+            font-weight: 200;
+            color: white;
+            letter-spacing: -2px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .date {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .banner-section {
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .banner-container {
+            width: 100%;
+            max-width: 335px;
+            aspect-ratio: 3 / 2;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .banner-container:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .banner-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .icons-section {
+            padding: 20px 20px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+
+        .icons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            justify-items: center;
+        }
+
+        .app-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .app-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .app-icon:active {
+            transform: scale(0.95);
+        }
+
+        .app-icon img {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+            object-fit: contain;
+        }
+
+        .app-name {
+            font-size: 11px;
+            color: black;
+            text-align: center;
+            max-width: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .home-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 134px;
+            height: 5px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 2.5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 320px;
+            text-align: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1d1d1f;
+        }
+
+        .modal-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-primary {
+            background: #007aff;
+            color: white;
+        }
+
+        .modal-btn-secondary {
+            background: #f2f2f7;
+            color: #007aff;
+        }
+
+        .modal-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .modal-btn:active {
+            transform: scale(0.98);
+        }
+
+        .modal-close {
+            margin-top: 15px;
+            color: #8e8e93;
+            font-size: 14px;
+        }
+
+        .url-input-container {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .url-input-container.active {
+            display: block;
+        }
+
+        .url-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d1d6;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .url-submit {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="iphone-container">
+
+        <div class="time-section">
+            <div class="time" id="mainTime">--:--</div>
+            <div class="date" id="date">----</div>
+        </div>
+
+        <div class="banner-section">
+            <div class="banner-container" onclick="openUploadModal()">
+                <img id="bannerImage" src="https://img.heliar.top/file/1779037227279_IMG_20260227_000534.jpg" alt="Banner">
+            </div>
+        </div>
+
+        <div class="icons-section">
+            <div class="icons-grid">
+                <div class="app-icon" onclick="handleClick('CHAT')">
+                    <img src="https://s41.ax1x.com/2026/05/18/pexiA4U.png" alt="CHAT">
+                    <span class="app-name">CHAT</span>
+                </div>
+                <div class="app-icon" onclick="handleClick('世界书')">
+                    <img src="https://s41.ax1x.com/2026/05/18/pexiFEV.png" alt="世界书">
+                    <span class="app-name">世界书</span>
+                </div>
+                <div class="app-icon" onclick="handleClick('美化')">
+                    <img src="https://s41.ax1x.com/2026/05/18/pexikNT.png" alt="美化">
+                    <span class="app-name">美化</span>
+                </div>
+                <div class="app-icon" onclick="handleClick('设置')">
+                    <img src="https://s41.ax1x.com/2026/05/18/pexiSjs.png" alt="设置">
+                    <span class="app-name">设置</span>
+                </div>
+                <div class="app-icon" onclick="handleClick('购物')">
+                    <img src="https://s41.ax1x.com/2026/05/18/pexPzcj.png" alt="购物">
+                    <span class="app-name">购物</span>
+                </div>
+                <div class="app-icon" onclick="handleClick('ShopSync')">
+                    <img src="https://img.heliar.top/file/1779463667841_store-2-line.svg" alt="ShopSync">
+                    <span class="app-name">ShopSync</span>
+                </div>
+                <div class="app-icon" onclick="handleClick('char工位')">
+                    <img src="https://img.heliar.top/file/1779462570572_briefcase-5-line.svg" alt="char工位">
+                    <span class="app-name">char工位</span>
+                </div>
+                <div class="app-icon" onclick="handleClick('论坛')">
+                    <img src="https://s41.ax1x.com/2026/05/18/pexiCBq.png" alt="论坛">
+                    <span class="app-name">论坛</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="home-indicator"></div>
+    </div>
+
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-title">更换图片</div>
+            <button class="modal-btn modal-btn-primary" onclick="uploadFromFile()">📁 选择本地图片</button>
+            <button class="modal-btn modal-btn-secondary" onclick="toggleUrlInput()">🔗 输入图片链接</button>
+            <div class="url-input-container" id="urlInputContainer">
+                <input type="text" class="url-input" id="urlInput" placeholder="请输入图片URL">
+                <button class="url-submit" onclick="uploadFromUrl()">确认</button>
+            </div>
+            <button class="modal-btn modal-btn-secondary" onclick="restoreDefaultImage()">🔄 恢复默认图片</button>
+            <div class="modal-close" onclick="closeModal()">取消</div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" accept="image/*">
+    <script src="storage.js"></script>
+    <script src="api.js"></script>
+    <script src="chat-ai.js"></script>
+    <script src="chat-state.js"></script>
+    <script src="chat-utils.js"></script>
+    <script src="chat-stickers.js"></script>
+    <script src="chat-messages.js"></script>
+    <script src="chat-ai-send.js"></script>
+    <script src="chat-contacts.js"></script>
+    <script src="chat-friends.js"></script>
+    <script src="chat-profile.js"></script>
+    <script src="chat-chat-list.js"></script>
+    <script src="chat-plus.js"></script>
+    <script src="chat-sidebar.js"></script>
+    <script src="chat-settings.js"></script>
+    <script src="chat-core.js"></script>
+    <script src="chat-render-sidebar.js"></script>
+    <script src="chat-render-contacts.js"></script>
+    <script src="chat-render-chat.js"></script>
+    <script src="chat-render-profile.js"></script>
+    <script src="chat-render-modals.js"></script>
+    <script src="chat-render-search.js"></script>
+    <script src="chat-render-core.js"></script>
+    <script src="chat-search.js"></script>
+    <script src="chat-forward.js"></script>
+    <script src="chat-selection.js"></script>
+    <script src="chat-wallet.js"></script>
+    <script src="chat-render-wallet.js"></script>
+    <script src="chat.js"></script>
+    <script src="setting.js"></script>
+
+    <script>
+        const DEFAULT_BANNER_URL = 'https://img.heliar.top/file/1779037227279_IMG_20260227_000534.jpg';
+        
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            const month = now.getMonth() + 1;
+            const day = now.getDate();
+
+            const mainTimeEl = document.getElementById('mainTime');
+            const dateEl = document.getElementById('date');
+            if (mainTimeEl) {
+                mainTimeEl.textContent = `${hours}:${minutes}`;
+            }
+            if (dateEl) {
+                dateEl.textContent = `${weekDays[now.getDay()]} ${month}/${day}`;
+            }
+        }
+        
+        function restoreDefaultImage() {
+            document.getElementById('bannerImage').src = DEFAULT_BANNER_URL;
+            closeModal();
+        }
+
+        function handleClick(name) {
+            if (name === 'CHAT') {
+                initChatApp();
+            } else if (name === '设置') {
+                initSettingsApp();
+            } else {
+                alert(`${name}功能正在开发中`);
+            }
+        }
+
+        function openUploadModal() {
+            document.getElementById('uploadModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('uploadModal').classList.remove('active');
+            document.getElementById('urlInputContainer').classList.remove('active');
+            document.getElementById('urlInput').value = '';
+        }
+
+        function toggleUrlInput() {
+            const container = document.getElementById('urlInputContainer');
+            container.classList.toggle('active');
+        }
+
+        function uploadFromFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('bannerImage').src = event.target.result;
+                    closeModal();
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function uploadFromUrl() {
+            const url = document.getElementById('urlInput').value.trim();
+            if (url) {
+                document.getElementById('bannerImage').src = url;
+                closeModal();
+            } else {
+                alert('请输入有效的图片URL');
+            }
+        }
+
+        document.getElementById('uploadModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', async () => {
+                try {
+                    const registration = await navigator.serviceWorker.register('./service-worker.js');
+                    console.log('Service Worker 注册成功:', registration);
+                    
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('有新版本可用，请刷新页面');
+                            }
+                        });
+                    });
+                } catch (error) {
+                    console.warn('Service Worker 注册失败:', error);
+                }
+            });
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html>
