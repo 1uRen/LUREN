@@ -1,12 +1,10 @@
-/* 安全区域适配 - 鸿蒙/移动端 */
+/* 安全区变量与 viewport.css 保持一致 */
 :root {
-    --safe-area-top: env(safe-area-inset-top, 0px);
-    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-area-left: env(safe-area-inset-left, 0px);
-    --safe-area-right: env(safe-area-inset-right, 0px);
+    --safe-area-top: var(--safe-top, env(safe-area-inset-top, 0px));
+    --safe-area-bottom: var(--safe-bottom, env(safe-area-inset-bottom, 0px));
+    --safe-area-left: var(--safe-left, env(safe-area-inset-left, 0px));
+    --safe-area-right: var(--safe-right, env(safe-area-inset-right, 0px));
 }
-
-.chat-app { position:relative; width:100%; height:100%; flex:1; min-height:0; display:flex; flex-direction:column; background:#FAF6EB; }
 .sidebar { position:fixed; left:-280px; top:0; width:280px; height:100%; background:linear-gradient(to bottom, #ffffff 0%, #ffffff 52%, #FAF6EB 100%); z-index:1001; transition:left 0.3s; }
 .sidebar.open { left:0; }
 .sidebar-bg { height:180px; background-position:center; background-size:cover; background-repeat:no-repeat; position:relative; }
@@ -27,8 +25,7 @@
 .sidebar-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; display:none; }
 .sidebar-overlay.show { display:block; }
 
-.main-content { position:relative; flex:1; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
-.chat-header { position:relative; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:15px 20px; background:#F0E8D4; border-bottom:1px solid #e5e5e5; padding-top: calc(50px + var(--safe-area-top, 0px)); }
+.chat-header { position:relative; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:15px 20px; background:#F0E8D4; border-bottom:1px solid #e5e5e5; }
 .back-btn { width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
 .header-title { position:absolute; left:50%; transform:translateX(-50%); font-size:18px; font-weight:600; }
 .chat-content { flex:1; min-height:0; overflow:auto; }
@@ -110,7 +107,7 @@
 .nav-unread-badge { position:absolute; top:-4px; right:-8px; min-width:16px; height:16px; background:#ff3b30; color:white; border-radius:8px; font-size:11px; display:flex; align-items:center; justify-content:center; padding:0 4px; }
 
 .chat-fullscreen { position:absolute; top:0; left:0; right:0; bottom:0; display:flex; flex-direction:column; background:#FAF6EB; z-index:100; padding-bottom:0; }
-.chat-fullscreen .chat-header { display:flex; align-items:center; gap:12px; padding:15px; background:#F0E8D4; border-bottom:1px solid #e5e5e5; padding-top: calc(50px + var(--safe-area-top, 0px)); }
+.chat-fullscreen .chat-header { display:flex; align-items:center; gap:12px; padding:15px; background:#F0E8D4; border-bottom:1px solid #e5e5e5; }
 .chat-fullscreen .back-btn { width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:24px; color:#333; cursor:pointer; border:none; background:none; }
 .chat-fullscreen .chat-header-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
 .chat-fullscreen .message-select-all-btn { border:none; background:transparent; padding:6px 8px; font-size:14px; color:#987754; cursor:pointer; white-space:nowrap; }
@@ -331,7 +328,6 @@ input:checked + .slider:before { transform:translateX(20px); }
 .post-item { display:flex; align-items:center; justify-content:space-between; padding-top:8px; cursor:pointer; position:relative; top:-5px; }
 .post-item span { font-size:15px; }
 
-.bottom-nav { flex-shrink:0; margin-top:auto; display:flex; align-items:center; background:#F0E8D4; border-top:1px solid #e5e5e5; padding:10px 0 calc(10px + env(safe-area-inset-bottom, 0px)); box-sizing:border-box; }
 .nav-item { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-height:44px; cursor:pointer; color:#8e8e93; font-size:12px; line-height:1.2; }
 .nav-item.active { color:#E48C64; }
 .nav-icon-svg { width:20px; height:20px; display:inline-block; background-color:currentColor; -webkit-mask-image:var(--icon-url); -webkit-mask-repeat:no-repeat; -webkit-mask-position:center; -webkit-mask-size:contain; mask-image:var(--icon-url); mask-repeat:no-repeat; mask-position:center; mask-size:contain; }
@@ -453,8 +449,7 @@ input:checked + .slider:before { transform:translateX(20px); }
 
 /* 小屏幕手机适配 (iPhone SE, 小米6等) */
 @media (max-width: 375px) {
-    .chat-header { padding-top: calc(45px + var(--safe-area-top, 0px)) !important; }
-    .chat-fullscreen .chat-header { padding-top: calc(45px + var(--safe-area-top, 0px)) !important; }
+    :root { --header-offset: 45px; }
     .wallet-balance-amount { font-size: 32px; }
     .wallet-services-grid { gap: 10px; }
     .wallet-service-icon { width: 24px; height: 24px; }
@@ -494,9 +489,13 @@ input:checked + .slider:before { transform:translateX(20px); }
     .wallet-balance-section { min-height: 30vh; }
 }
 
-/* 折叠屏/小平板适配 */
-@media (min-width: 769px) and (max-width: 1024px) {
-    .iphone-container { width: 450px !important; max-height: 900px !important; }
+/* 折叠屏 / 平板竖屏：仍走全屏壳，仅放大桌面预览框 */
+@media (min-width: 769px) and (max-width: 1024px) and (min-height: 801px) and (hover: hover) {
+    .iphone-container {
+        width: min(430px, 100vw) !important;
+        height: min(900px, 100dvh, 100vh) !important;
+        max-height: min(900px, 100dvh, 100vh) !important;
+    }
     .time { font-size: 6.5rem !important; }
 }
 
@@ -513,66 +512,6 @@ input:checked + .slider:before { transform:translateX(20px); }
     .chat-fullscreen .message-content { font-size: 13px; padding: 7px 10px; }
     .menu-item { padding: 10px 14px; font-size: 14px; }
     .user-nickname { font-size: 16px; }
-}
-
-/* iOS Safari：铺满屏幕，底部安全区与底栏同色，避免白边 */
-@supports (-webkit-touch-callout: none) {
-    html {
-        height: 100%;
-        min-height: 100dvh;
-        min-height: -webkit-fill-available;
-        background-color: #F0E8D4;
-    }
-    body {
-        height: 100%;
-        min-height: 100dvh;
-        min-height: -webkit-fill-available;
-        background-color: #F0E8D4;
-    }
-    .iphone-container {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        min-height: 100dvh !important;
-        min-height: -webkit-fill-available !important;
-        box-sizing: border-box !important;
-        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
-        background-color: #FAF6EB !important;
-    }
-    .iphone-container > .chat-app,
-    .iphone-container > .settings-app {
-        flex: 1 !important;
-        min-height: 0 !important;
-        height: 100% !important;
-        background-color: #FAF6EB !important;
-    }
-    .main-content { flex: 1 !important; min-height: 0 !important; }
-    .bottom-nav {
-        margin-top: auto !important;
-        padding-bottom: 10px !important;
-        background-color: #F0E8D4 !important;
-    }
-    .sidebar { height: 100% !important; }
-    .chat-fullscreen .chat-input-stack,
-    .chat-fullscreen .chat-input-bar {
-        padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
-    }
-}
-
-/* 华为/鸿蒙：顶栏安全区兜底（底栏只用 env，避免切换页后重复留白） */
-@media screen and (-webkit-min-device-pixel-ratio: 3) and (min-width: 375px) {
-    :root {
-        --safe-area-top: env(safe-area-inset-top, 44px);
-    }
-}
-
-/* 小米/OPPO/VIVO等安卓手机适配 */
-@media (prefers-color-scheme: light) {
-    /* 保持现有样式 */
 }
 
 /* 避免文本选择干扰用户体验 */
@@ -642,10 +581,6 @@ input, textarea {
         bottom: 0 !important;
         left: 0 !important;
         right: 0 !important;
-    }
-    
-    .chat-fullscreen .chat-tools-bar {
-        padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
     }
 }
 

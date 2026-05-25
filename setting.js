@@ -1,5 +1,5 @@
 function getAppVersion() {
-    return (typeof window !== 'undefined' && window.__APP_VERSION__) || 'v0.1.3';
+    return (typeof window !== 'undefined' && window.__APP_VERSION__) || 'v0.1.4';
 }
 
 const settingsState = {
@@ -51,14 +51,7 @@ function renderSettingsApp() {
         </div>
         <style>
             .settings-app {
-                width: 100%;
-                height: 100%;
                 background: #f5f5f7;
-                display: flex;
-                flex-direction: column;
-                position: relative;
-                box-sizing: border-box;
-                padding-bottom: env(safe-area-inset-bottom, 0px);
             }
             
             .settings-header {
@@ -66,7 +59,7 @@ function renderSettingsApp() {
                 align-items: center;
                 justify-content: space-between;
                 padding: 15px 20px;
-                padding-top: 55px;
+                padding-top: calc(15px + var(--safe-top, env(safe-area-inset-top, 0px)));
                 background: white;
                 border-bottom: 1px solid #e5e5e5;
                 position: sticky;
