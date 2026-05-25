@@ -1,3 +1,5 @@
+const APP_VERSION = 'v0.1.1';
+
 const settingsState = {
     currentPage: 'main',
     apiSettings: {
@@ -168,6 +170,13 @@ function renderSettingsApp() {
             .settings-arrow {
                 font-size: 16px;
                 color: #c7c7cc;
+            }
+
+            .settings-version {
+                margin: 8px 0 20px;
+                text-align: center;
+                font-size: 13px;
+                color: #8e8e93;
             }
             
             .api-settings-content {
@@ -361,6 +370,7 @@ function renderSettingsMain() {
                         </div>
                     </div>
                 </div>
+                <div class="settings-version">${APP_VERSION}</div>
             </div>
             <input type="file" id="importFileInput" accept=".json" style="display: none;">
         </div>
