@@ -1,7 +1,8 @@
-const CACHE_NAME = "xiaoshouji-pwa-v13";
+const CACHE_NAME = "xiaoshouji-pwa-v16";
 const CORE_ASSETS = [
   "./",
   "./index.html",
+  "./device-runtime.js",
   "./viewport.css",
   "./manifest.webmanifest",
   "./pwa-icon.svg",

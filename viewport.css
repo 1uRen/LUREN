@@ -1,6 +1,6 @@
 /*
- * 统一壳层布局：桌面预览框与手机全屏使用同一套底栏定位
- * body.mode-home | mode-chat | mode-settings 由 JS 切换（不依赖 :has）
+ * 统一壳层布局（全屏）
+ * body.mode-home | mode-chat | mode-settings 由 JS 切换
  */
 :root {
     --app-bg: #FAF6EB;
@@ -9,10 +9,21 @@
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-left: env(safe-area-inset-left, 0px);
     --safe-right: env(safe-area-inset-right, 0px);
+    --keyboard-offset: 0px;
     --header-pad-y: 10px;
     --tab-bar-inner: 48px;
     --tab-bar-total: calc(var(--tab-bar-inner) + var(--safe-bottom));
     --home-wallpaper: url('https://img.heliar.top/file/1779038914728_IMG_20260518_012229_edit_3883979776694321.png');
+    --home-time-size: clamp(3.5rem, 12vw, 6rem);
+    --home-time-pad-top: 12px;
+    --home-banner-max-w: min(335px, 92vw);
+    --home-icon-size: 70px;
+    --home-grid-gap: 1rem;
+    --msg-font-size: 15px;
+    --msg-sticker-size: 92px;
+    --msg-photo-w: 220px;
+    --msg-mock-w: 190px;
+    --wallet-balance-size: 36px;
 }
 
 html,
@@ -45,11 +56,12 @@ body.mode-home .iphone-container {
     background: transparent;
     box-sizing: border-box;
     padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+    position: relative;
 }
 
 body.mode-home .time-section {
     flex-shrink: 0;
-    padding-top: 12px;
+    padding-top: var(--home-time-pad-top);
 }
 
 body.mode-home .banner-section {
@@ -59,15 +71,22 @@ body.mode-home .banner-section {
 body.mode-home .icons-section {
     flex: 1;
     min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 16px 20px 8px;
     justify-content: flex-start;
 }
 
-body.mode-home .home-indicator {
+/* PWA 有系统横条；浏览器内显示自绘指示条 */
+html[data-standalone="true"] body.mode-home .home-indicator {
     display: none;
 }
 
-/* ========== 聊天 / 设置：底栏贴壳底（预览与手机一致） ========== */
+html[data-standalone="false"] body.mode-home .home-indicator {
+    display: block;
+}
+
+/* ========== 聊天 / 设置 ========== */
 body.mode-chat,
 body.mode-settings {
     display: flex;
@@ -87,6 +106,9 @@ body.mode-settings .iphone-container {
     background-color: var(--app-bg);
     padding: 0;
     box-sizing: border-box;
+    border-radius: 0;
+    box-shadow: none;
+    max-height: none;
 }
 
 .chat-app,
@@ -116,7 +138,6 @@ body.mode-settings .settings-app {
     overflow: hidden;
 }
 
-/* 有底栏时给内容区留白，底栏绝对贴底 */
 .main-content.with-tab-bar,
 .main-content:has(.bottom-nav) {
     padding-bottom: var(--tab-bar-total);
@@ -160,84 +181,28 @@ body.mode-settings .settings-app {
 }
 
 .chat-fullscreen .chat-input-stack {
-    padding-bottom: var(--safe-bottom);
+    padding-bottom: calc(var(--safe-bottom) + var(--keyboard-offset, 0px));
+    transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
+    transition: transform 0.15s ease-out, padding-bottom 0.15s ease-out;
+}
+
+.chat-fullscreen .chat-messages {
+    scroll-padding-bottom: calc(80px + var(--safe-bottom) + var(--keyboard-offset, 0px));
 }
 
 .chat-fullscreen .chat-tools-bar,
 .chat-fullscreen .sticker-sheet-tabs,
 .chat-fullscreen .message-select-bar {
-    padding-bottom: max(8px, var(--safe-bottom));
-}
-
-/* ========== 手机 / 矮屏全屏 ========== */
-@media (max-width: 768px), (max-height: 800px), ((hover: none) and (pointer: coarse) and (max-width: 1024px)) {
-    body.mode-home,
-    body.mode-chat,
-    body.mode-settings {
-        width: 100%;
-        height: 100%;
-    }
-
-    body.mode-home .iphone-container,
-    body.mode-chat .iphone-container,
-    body.mode-settings .iphone-container {
-        border-radius: 0;
-        box-shadow: none;
-        max-height: none;
-    }
-}
-
-/* ========== 桌面：居中手机预览，底栏仍在框内底部 ========== */
-@media (min-width: 769px) and (min-height: 801px) {
-    body.mode-home,
-    body.mode-chat,
-    body.mode-settings {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0;
-    }
-
-    body.mode-home {
-        background: linear-gradient(135deg, #f5f5f7 0%, #e8e8ed 50%, #f5f5f7 100%),
-            var(--home-wallpaper) center/cover no-repeat;
-        background-size: auto, cover;
-    }
-
-    body.mode-chat,
-    body.mode-settings {
-        background: linear-gradient(135deg, #f5f5f7 0%, #e8e8ed 50%, #f5f5f7 100%);
-    }
-
-    body.mode-home .iphone-container,
-    body.mode-chat .iphone-container,
-    body.mode-settings .iphone-container {
-        flex: none;
-        width: min(375px, 100vw);
-        height: min(812px, 100dvh, 100vh);
-        max-height: min(812px, 100dvh, 100vh);
-        border-radius: 40px;
-        box-shadow:
-            0 0 0 3px #d1d1d6,
-            0 0 0 5px #e8e8ed,
-            0 25px 50px -12px rgba(0, 0, 0, 0.15);
-    }
-
-    body.mode-home .iphone-container {
-        background: var(--home-wallpaper) center/cover no-repeat;
-        background-color: #e8e4dc;
-        padding: 0;
-    }
-
-    body.mode-chat .iphone-container,
-    body.mode-settings .iphone-container {
-        padding: 0;
-    }
+    padding-bottom: max(8px, calc(var(--safe-bottom) + var(--keyboard-offset, 0px)));
 }
 
 @media (max-height: 500px) and (orientation: landscape) {
     :root {
         --header-pad-y: 8px;
         --tab-bar-inner: 42px;
+    }
+
+    body.mode-home .icons-section {
+        overflow-y: auto;
     }
 }
