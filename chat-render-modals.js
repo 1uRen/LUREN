@@ -74,7 +74,9 @@ function renderModals() {
                     <div class="edit-form">
                         <div class="form-group">
                             <div class="avatar-pick-wrap">
-                                <img class="avatar-preview avatar-pick-img" src="${state.newFriend.avatar || DEFAULT_CONTACT_AVATAR}" onclick="openFriendAvatarFilePicker()">
+                                <button type="button" class="avatar-pick-btn" onclick="openFriendAvatarFilePicker()" aria-label="选择头像">
+                                    <img class="avatar-preview avatar-pick-img" src="${state.newFriend.avatar || DEFAULT_CONTACT_AVATAR}" alt="">
+                                </button>
                                 <input class="edit-input nick-input" id="friendNick" value="${state.newFriend.name || ''}" placeholder="昵称">
                             </div>
                         </div>
@@ -131,7 +133,9 @@ function renderModals() {
                     <div class="edit-form">
                         <div class="form-group">
                             <div class="avatar-pick-wrap">
-                                <img class="avatar-preview avatar-pick-img" src="${state.editingContactAvatar || contact.avatar || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23ffffff%22/%3E%3C/svg%3E'}" onclick="openEditContactAvatarFilePicker()">
+                                <button type="button" class="avatar-pick-btn" onclick="openEditContactAvatarFilePicker()" aria-label="选择头像">
+                                    <img class="avatar-preview avatar-pick-img" src="${state.editingContactAvatar || contact.avatar || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23ffffff%22/%3E%3C/svg%3E'}" alt="">
+                                </button>
                                 <input class="edit-input nick-input" id="editContactNick" value="${contact.name || ''}" placeholder="昵称">
                             </div>
                         </div>
@@ -242,8 +246,10 @@ function renderModals() {
                     <div class="edit-form">
                         <div class="form-group">
                             <div class="row-center-12">
-                                <img class="avatar-preview avatar-clickable" src="${state.editingAvatar || user.avatar}" onclick="openAvatarFilePicker(${state.isCreatingNewAccount ? state.users.length : state.editingAccountIndex})">
-                                <button class="change-avatar-btn" onclick="openAvatarFilePicker(${state.isCreatingNewAccount ? state.users.length : state.editingAccountIndex})">更换头像</button>
+                                <button type="button" class="avatar-pick-btn avatar-pick-btn-inline" onclick="openAvatarFilePicker(${state.isCreatingNewAccount ? state.users.length : state.editingAccountIndex})" aria-label="选择头像">
+                                    <img class="avatar-preview avatar-clickable" src="${state.editingAvatar || user.avatar}" alt="">
+                                </button>
+                                <button type="button" class="change-avatar-btn" onclick="openAvatarFilePicker(${state.isCreatingNewAccount ? state.users.length : state.editingAccountIndex})">更换头像</button>
                             </div>
                         </div>
                         <div class="form-group">

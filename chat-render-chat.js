@@ -190,7 +190,7 @@ function renderChatInterface() {
     return `
         <div class="chat-fullscreen" onclick="handleChatGlobalClick(event)">
             <div class="chat-header">
-                <div class="back-btn" onclick="closeChat()">‹</div>
+                <button type="button" class="back-btn" aria-label="返回" onclick="event.stopPropagation(); closeChat()">‹</button>
                 <img class="avatar-36" src="${contact.avatar || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23ffffff%22/%3E%3C/svg%3E'}">
                 <div class="flex-1">
                     <div class="text-15-medium">${contact.remark || contact.name}</div>
@@ -203,7 +203,7 @@ function renderChatInterface() {
                         </button>
                         <button type="button" class="message-select-all-btn" onclick="selectAllMessages()">全选</button>
                     ` : ''}
-                    <div class="menu-btn" onclick="openChatSettings()">⋮</div>
+                    <button type="button" class="menu-btn" aria-label="聊天设置" onclick="event.stopPropagation(); openChatSettings()">⋮</button>
                 </div>
             </div>
             <div class="chat-messages" onclick="hideMessageContextMenu(event)">
@@ -390,7 +390,7 @@ function renderChatSettingsPage(contact, chat) {
     return `
         <div class="chat-fullscreen chat-settings-page">
             <div class="chat-header">
-                <div class="back-btn" onclick="closeChatSettings()">‹</div>
+                <button type="button" class="back-btn" aria-label="返回" onclick="event.stopPropagation(); closeChatSettings()">‹</button>
                 <div class="header-title">聊天设置</div>
                 <div></div>
             </div>

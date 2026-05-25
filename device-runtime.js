@@ -49,8 +49,9 @@
 
     function fallbackInsets(os, standalone) {
         if (os === 'ios') {
+            /* PWA 冷启动/后台恢复时 env() 常为 0，需保底避免顶栏进状态栏 */
             return standalone
-                ? { top: 0, right: 0, bottom: 0, left: 0 }
+                ? { top: 47, right: 0, bottom: 34, left: 0 }
                 : { top: 20, right: 0, bottom: 0, left: 0 };
         }
         if (os === 'android') {
@@ -98,6 +99,25 @@
         }
     }
 
+    function isKeyboardLikelyOpen() {
+        var vv = window.visualViewport;
+        if (!vv) return false;
+        return window.innerHeight - vv.height - (vv.offsetTop || 0) > KB_THRESHOLD;
+    }
+
+    function resolveIosTopInset(envTop, standalone) {
+        var vv = window.visualViewport;
+        var vvTop = vv && vv.offsetTop > 0 ? vv.offsetTop : 0;
+        var top = Math.max(envTop, vvTop);
+        if (standalone) {
+            /* 后台恢复后 env 短暂为 0 时仍保留可点区域 */
+            if (top < 20) top = 47;
+        } else if (top < 20) {
+            top = 20;
+        }
+        return top;
+    }
+
     function applyLayout() {
         var os = detectOs();
         var standalone = isStandalone();
@@ -113,9 +133,13 @@
         var fb = fallbackInsets(os, standalone);
         var safe = resolveInsets(env, fb);
 
+        if (os === 'ios' && !isKeyboardLikelyOpen()) {
+            safe.top = resolveIosTopInset(env.top, standalone);
+        }
         if (standalone && os === 'ios') {
-            safe.top = Math.max(safe.top, env.top);
-            safe.bottom = Math.max(safe.bottom, env.bottom);
+            safe.bottom = Math.max(env.bottom, fb.bottom, safe.bottom);
+            safe.left = env.left > 0 ? env.left : safe.left;
+            safe.right = env.right > 0 ? env.right : safe.right;
         }
 
         root.style.setProperty('--safe-top', safe.top + 'px');
@@ -180,12 +204,32 @@
     var debouncedLayout = debounce(applyLayout, 100);
     var debouncedKeyboard = debounce(applyKeyboardOffset, 50);
 
-    applyLayout();
-    applyKeyboardOffset();
+    function scheduleLayoutRefresh() {
+        applyLayout();
+        applyKeyboardOffset();
+        requestAnimationFrame(applyLayout);
+        setTimeout(applyLayout, 120);
+        setTimeout(applyLayout, 400);
+    }
+
+    scheduleLayoutRefresh();
 
     window.addEventListener('resize', debouncedLayout);
     window.addEventListener('orientationchange', function () {
-        setTimeout(applyLayout, 300);
+        scheduleLayoutRefresh();
+    });
+
+    window.addEventListener('pageshow', function () {
+        scheduleLayoutRefresh();
+    });
+
+    document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState === 'visible') {
+            scheduleLayoutRefresh();
+        } else {
+            root.style.setProperty('--keyboard-offset', '0px');
+            delete root.dataset.input;
+        }
     });
 
     if (window.visualViewport) {

@@ -9,6 +9,8 @@
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-left: env(safe-area-inset-left, 0px);
     --safe-right: env(safe-area-inset-right, 0px);
+    --safe-top-effective: max(var(--safe-top, 0px), env(safe-area-inset-top, 0px));
+    --safe-bottom-effective: max(var(--safe-bottom, 0px), env(safe-area-inset-bottom, 0px));
     --keyboard-offset: 0px;
     --header-pad-y: 10px;
     --tab-bar-inner: 48px;
@@ -35,6 +37,15 @@ body {
     min-height: -webkit-fill-available;
     margin: 0;
     overflow: hidden;
+    background-color: var(--app-bg);
+}
+
+body.mode-home,
+body.mode-chat,
+body.mode-settings {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
+    height: 100dvh;
 }
 
 /* ========== 主界面 ========== */
@@ -55,8 +66,13 @@ body.mode-home .iphone-container {
     overflow: hidden;
     background: transparent;
     box-sizing: border-box;
-    padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+    padding: var(--safe-top-effective) var(--safe-right) var(--home-pad-bottom, var(--safe-bottom-effective)) var(--safe-left);
     position: relative;
+}
+
+/* iOS 主屏幕 PWA：壁纸铺满到底，底部由系统 Home 条处理 */
+html[data-os="ios"][data-standalone="true"] body.mode-home .iphone-container {
+    --home-pad-bottom: 0px;
 }
 
 body.mode-home .time-section {
@@ -91,7 +107,7 @@ body.mode-chat,
 body.mode-settings {
     display: flex;
     flex-direction: column;
-    background-color: var(--tab-bar-bg);
+    background-color: var(--app-bg);
 }
 
 body.mode-chat .iphone-container,
@@ -149,11 +165,12 @@ body.mode-settings .settings-app {
     right: 0;
     bottom: 0;
     z-index: 90;
-    height: var(--tab-bar-total);
+    height: auto;
+    min-height: var(--tab-bar-inner);
     margin-top: 0;
     display: flex;
     align-items: center;
-    padding: 6px 8px var(--safe-bottom);
+    padding: 6px 8px max(6px, var(--safe-bottom));
     box-sizing: border-box;
     background: var(--tab-bar-bg);
     border-top: 1px solid #e5e5e5;
@@ -173,27 +190,38 @@ body.mode-settings .settings-app {
 }
 
 .chat-header {
-    padding: calc(var(--header-pad-y) + var(--safe-top)) 16px var(--header-pad-y) !important;
+    position: relative;
+    z-index: 100;
+    flex-shrink: 0;
+    padding: calc(var(--header-pad-y) + var(--safe-top-effective)) 16px var(--header-pad-y) !important;
+    box-sizing: border-box;
 }
 
 .chat-fullscreen .chat-header {
-    padding: calc(var(--header-pad-y) + var(--safe-top)) 12px var(--header-pad-y) !important;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    padding: calc(var(--header-pad-y) + var(--safe-top-effective)) 12px var(--header-pad-y) !important;
+    box-sizing: border-box;
 }
 
 .chat-fullscreen .chat-input-stack {
-    padding-bottom: calc(var(--safe-bottom) + var(--keyboard-offset, 0px));
+    padding-bottom: 0;
     transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
-    transition: transform 0.15s ease-out, padding-bottom 0.15s ease-out;
+    transition: transform 0.15s ease-out;
 }
 
 .chat-fullscreen .chat-messages {
-    scroll-padding-bottom: calc(80px + var(--safe-bottom) + var(--keyboard-offset, 0px));
+    scroll-padding-bottom: calc(120px + var(--safe-bottom) + var(--keyboard-offset, 0px));
 }
 
+/* 底部仅工具栏吸收安全区，避免与 input-stack 重复留白 */
 .chat-fullscreen .chat-tools-bar,
 .chat-fullscreen .sticker-sheet-tabs,
 .chat-fullscreen .message-select-bar {
-    padding-bottom: max(8px, calc(var(--safe-bottom) + var(--keyboard-offset, 0px)));
+    padding-bottom: max(8px, var(--safe-bottom));
+    transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
+    transition: transform 0.15s ease-out, padding-bottom 0.15s ease-out;
 }
 
 @media (max-height: 500px) and (orientation: landscape) {

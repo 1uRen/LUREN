@@ -143,7 +143,35 @@ function closeEditContactModal() {
     initChatApp();
 }
 
+function saveEditContactFormData() {
+    if (state.editingContactIndex === null) return;
+    const contact = state.contacts[state.editingContactIndex];
+    if (!contact) return;
+
+    const nick = document.getElementById('editContactNick')?.value;
+    const remark = document.getElementById('editContactRemark')?.value;
+    const qqId = document.getElementById('editContactQQ')?.value;
+    const gender = document.getElementById('editContactGender')?.value;
+    const birthday = document.getElementById('editContactBirthday')?.value;
+    const setting = document.getElementById('editContactSetting')?.value;
+    const group = document.getElementById('editContactGroup')?.value;
+
+    if (nick !== undefined) contact.name = nick || '';
+    if (remark !== undefined) contact.remark = remark || '';
+    if (qqId !== undefined) contact.qqId = qqId || '';
+    if (gender !== undefined) contact.gender = (gender || '').trim();
+    if (birthday !== undefined) {
+        contact.birthday = birthday || '';
+        contact.constellation = getConstellation(birthday);
+    }
+    if (setting !== undefined) contact.setting = setting || '';
+    if (group !== undefined) contact.group = group || '我的好友';
+    contact.autoAddFriend = document.getElementById('editContactAutoAdd')?.checked || false;
+    contact.addChance = parseInt(document.getElementById('editAddChanceSlider')?.value, 10) || 80;
+}
+
 function openEditContactAvatarFilePicker() {
+    saveEditContactFormData();
     document.getElementById('fileInput')?.click();
 }
 

@@ -43,7 +43,7 @@ function renderHeader() {
     const title = state.currentPage === 'messages' ? '消息' : state.currentPage === 'contacts' ? '联系人' : '动态';
     return `
         <div class="chat-header">
-            <div class="back-btn" onclick="goBack()">←</div>
+            <button type="button" class="back-btn" aria-label="返回" onclick="event.stopPropagation(); goBack()">←</button>
             <div class="header-title">${title}</div>
             <div></div>
         </div>

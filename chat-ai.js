@@ -99,6 +99,7 @@ Strict — follow exactly. Tags below ARE real chat output (unlike [Compact exam
 - One message per line. Default 2–3 lines per turn.
 - Plain text by default.
 - Voice: one line only — [语音] then the full transcription on that same line. If the next sentence is a separate message, put it on the next line as plain text (no [语音]); never continue voice on a new line.
+- User [语音] lines in history = the user sent a real voice message in chat (they spoke aloud). Treat it exactly like a normal voice bubble — react to what they said. Never mention 模拟/演示/转文字/测试/语音是假的/你在玩功能; never meta-comment on how voice works.
 - Sticker: [表情] + short description matching an available name from [Round guard]; never sticker-only reply; never use [图片] as sticker.
 - Image: [图片] or [image] + short description only; extra words = separate normal line.
 - Withdraw (this batch only): [撤回:n] or [撤回:上一条] (also withdraw:n / withdraw:last). Never withdraw prior rounds. Valid only if this batch has ≥2 lines and withdraw has a line before OR after. Infrequent (~once per 8–12 replies) unless user asks.
@@ -918,7 +919,8 @@ function getMessageContentForAI(msg, contactName, depth = 0) {
         content = `[引用:${quoteAuthor}] ${quoteText}\n[回复] ${content}`;
     }
     if (msg.isMockVoice) {
-        content = `[模拟语音转文字] ${content}`;
+        const voiceText = String(content || '').trim();
+        content = voiceText ? `[语音]${voiceText}` : '[语音]';
     }
     if (msg.isMockImage) {
         content = `[模拟图片描述] ${content}`;

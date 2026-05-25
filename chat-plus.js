@@ -76,6 +76,7 @@ function handleFileSend() {
 function handleChatGlobalClick(event) {
     const target = event?.target;
     if (!target) return;
+    if (target.closest('.chat-header')) return;
     if (target.closest('.chat-modal')) return;
     if (target.closest('.chat-input')) return;
 

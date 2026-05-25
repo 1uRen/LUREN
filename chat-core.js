@@ -206,57 +206,63 @@ function initChatApp() {
     }, 10);
 }
 
+function isAccountAvatarEditing() {
+    return state.isCreatingNewAccount || (state.editingAccountIndex !== null && state.editingAccountIndex >= 0);
+}
+
+async function handleAvatarFileInputChange(e) {
+    const input = e.target;
+    const file = input?.files?.[0];
+    if (input) input.value = '';
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function(event) {
+        const croppedImage = await cropImageToSquare(event.target.result);
+
+        if (isAccountAvatarEditing()) {
+            state.editingAvatar = croppedImage;
+            state.avatarEditTarget = null;
+            initChatApp();
+        } else if (state.showCreateContactModal || state.showAddFriendModal) {
+            state.newFriend.avatar = croppedImage;
+            initChatApp();
+        } else if (state.editingContactIndex !== null) {
+            state.editingContactAvatar = croppedImage;
+            initChatApp();
+        } else if (state.uploadMode === 'avatar') {
+            state.currentUser.avatar = croppedImage;
+            saveStateToStorage();
+            closeModals();
+        } else if (state.uploadMode === 'profileBackground') {
+            if (state.currentProfileContactIndex !== null && state.contacts[state.currentProfileContactIndex]) {
+                state.contacts[state.currentProfileContactIndex].bgImage = croppedImage;
+                state.currentProfileContact = state.contacts[state.currentProfileContactIndex];
+                saveStateToStorage();
+            }
+            closeModals();
+        } else if (state.uploadMode === 'background') {
+            state.currentUser.background = croppedImage;
+            saveStateToStorage();
+            closeModals();
+        } else if (state.avatarEditTarget !== null && state.users[state.avatarEditTarget]) {
+            state.users[state.avatarEditTarget].avatar = croppedImage;
+            if (state.users[state.avatarEditTarget] === state.currentUser) {
+                state.currentUser.avatar = croppedImage;
+            }
+            state.avatarEditTarget = null;
+            saveStateToStorage();
+            initChatApp();
+        }
+    };
+    reader.readAsDataURL(file);
+}
+
 function attachListeners() {
     const fileInput = document.getElementById('fileInput');
-    if (fileInput && !fileInputListenerAttached) {
-        fileInputListenerAttached = true;
-        fileInput.addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = async function(event) {
-                    const croppedImage = await cropImageToSquare(event.target.result);
-                    
-                    if (state.showAccountModal) {
-                        state.editingAvatar = croppedImage;
-                        initChatApp();
-                    } else if (state.showCreateContactModal) {
-                        state.newFriend.avatar = croppedImage;
-                        initChatApp();
-                    } else if (state.showAddFriendModal) {
-                        state.newFriend.avatar = croppedImage;
-                        initChatApp();
-                    } else if (state.editingContactIndex !== null) {
-                        state.editingContactAvatar = croppedImage;
-                        initChatApp();
-                    } else if (state.avatarEditTarget !== null) {
-                        state.users[state.avatarEditTarget].avatar = croppedImage;
-                        if (state.avatarEditTarget === state.users.indexOf(state.currentUser)) {
-                            state.currentUser.avatar = croppedImage;
-                        }
-                        state.avatarEditTarget = null;
-                        closeModals();
-                    } else if (state.uploadMode === 'avatar') {
-                        state.currentUser.avatar = croppedImage;
-                        saveStateToStorage();
-                        closeModals();
-                    } else if (state.uploadMode === 'profileBackground') {
-                        if (state.currentProfileContactIndex !== null && state.contacts[state.currentProfileContactIndex]) {
-                            state.contacts[state.currentProfileContactIndex].bgImage = croppedImage;
-                            state.currentProfileContact = state.contacts[state.currentProfileContactIndex];
-                            saveStateToStorage();
-                        }
-                        closeModals();
-                    } else {
-                        state.currentUser.background = croppedImage;
-                        saveStateToStorage();
-                        closeModals();
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
+    if (!fileInput) return;
+    fileInput.removeEventListener('change', handleAvatarFileInputChange);
+    fileInput.addEventListener('change', handleAvatarFileInputChange);
 }
 
 function goBack() {
