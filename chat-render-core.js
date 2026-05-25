@@ -12,15 +12,14 @@ function shouldHideMainNav() {
 }
 
 function renderChatApp() {
-    const showTabBar = !shouldHideMainNav() && !state.walletOpen;
     return `
-        <div class="chat-app${showTabBar ? ' with-tab-bar' : ''}">
+        <div class="chat-app">
             ${renderSidebar()}
             <div class="main-content">
                 ${renderHeader()}
                 ${renderContent()}
+                ${renderBottomNav()}
             </div>
-            ${renderBottomNav()}
             <div class="drag-handle" onclick="openSidebar()">☰</div>
             ${renderModals()}
         </div>
