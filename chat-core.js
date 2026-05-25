@@ -20,6 +20,8 @@ function initChatApp() {
 
     const container = document.querySelector('.iphone-container');
     if (!container) return;
+    container.style.height = '';
+    container.style.paddingBottom = '';
     container.innerHTML = renderChatApp();
     attachListeners();
     if (typeof bindForwardModalListeners === 'function') {

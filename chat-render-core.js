@@ -1,13 +1,26 @@
 // chat-render-core module
+function shouldHideMainNav() {
+    if (state.walletOpen) return false;
+    if (state.viewingForwardRecord) return true;
+    if (state.showSignatureHistory) return true;
+    if (state.currentProfileContact) return true;
+    if (state.showGroupManager) return true;
+    if (state.showFriendRequests) return true;
+    if (state.currentPage === 'messages' && state.messageSearchOpen) return true;
+    if (state.currentPage === 'messages' && state.currentChatContact) return true;
+    return false;
+}
+
 function renderChatApp() {
+    const showTabBar = !shouldHideMainNav() && !state.walletOpen;
     return `
-        <div class="chat-app">
+        <div class="chat-app${showTabBar ? ' with-tab-bar' : ''}">
             ${renderSidebar()}
             <div class="main-content">
                 ${renderHeader()}
                 ${renderContent()}
-                ${renderBottomNav()}
             </div>
+            ${renderBottomNav()}
             <div class="drag-handle" onclick="openSidebar()">☰</div>
             ${renderModals()}
         </div>
@@ -15,6 +28,9 @@ function renderChatApp() {
 }
 
 function renderHeader() {
+    if (shouldHideMainNav()) {
+        return '';
+    }
     if (state.walletOpen) {
         return `
             <div class="chat-header">
@@ -23,18 +39,6 @@ function renderHeader() {
                 <div></div>
             </div>
         `;
-    }
-    if (state.viewingForwardRecord) {
-        return `
-            <div class="chat-header">
-                <div class="back-btn" onclick="closeForwardRecord()">←</div>
-                <div class="header-title">${state.viewingForwardRecord?.title || '聊天记录'}</div>
-                <div></div>
-            </div>
-        `;
-    }
-    if (state.currentPage === 'messages' && state.messageSearchOpen) {
-        return '';
     }
     const title = state.currentPage === 'messages' ? '消息' : state.currentPage === 'contacts' ? '联系人' : '动态';
     return `
@@ -265,8 +269,8 @@ function renderBottomNav() {
         ? 'https://img.heliar.top/file/1779413261492_star-smile-fill.svg'
         : 'https://img.heliar.top/file/1779413265219_star-smile-line.svg';
     
-    // 查看聊天记录或钱包页面时不显示底部导航
-    if (state.viewingForwardRecord || state.walletOpen) {
+    // 子页面与钱包页不显示底部导航
+    if (shouldHideMainNav() || state.walletOpen) {
         return '';
     }
     

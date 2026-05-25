@@ -249,7 +249,7 @@ function getMessageBubbleAnchor(messageIndex) {
 
 function showMessageContextMenuForMessage(messageIndex) {
     if (state.messageSelectMode) return;
-    const menuWidth = 260;
+    const menuWidth = 320;
     const bounds = getPhoneScreenBounds();
     const anchor = getMessageBubbleAnchor(messageIndex);
     const bubbleCenterX = anchor?.centerX ?? (bounds.left + bounds.right) / 2;
