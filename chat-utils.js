@@ -51,24 +51,42 @@ function scrollChatToBottom() {
     });
 }
 
-function cropImageToSquare(imageData, size = 100) {
-    const img = new Image();
-    img.src = imageData;
-    
-    return new Promise((resolve) => {
-        img.onload = function() {
+function getAvatarCropSize() {
+    const dpr = typeof window !== 'undefined' ? Math.min(window.devicePixelRatio || 1, 3) : 2;
+    return Math.min(512, Math.max(256, Math.round(160 * dpr)));
+}
+
+function cropImageToSquare(imageData, size) {
+    const outputSize = Number.isFinite(size) && size > 0
+        ? Math.min(1024, Math.round(size))
+        : getAvatarCropSize();
+
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = function () {
             const canvas = document.createElement('canvas');
-            canvas.width = size;
-            canvas.height = size;
+            canvas.width = outputSize;
+            canvas.height = outputSize;
             const ctx = canvas.getContext('2d');
-            
+            if (!ctx) {
+                resolve(imageData);
+                return;
+            }
+
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+
             const minDimension = Math.min(img.width, img.height);
             const startX = (img.width - minDimension) / 2;
             const startY = (img.height - minDimension) / 2;
-            
-            ctx.drawImage(img, startX, startY, minDimension, minDimension, 0, 0, size, size);
-            resolve(canvas.toDataURL('image/png'));
+
+            ctx.drawImage(img, startX, startY, minDimension, minDimension, 0, 0, outputSize, outputSize);
+            resolve(canvas.toDataURL('image/jpeg', 0.9));
         };
+        img.onerror = function () {
+            reject(new Error('图片加载失败'));
+        };
+        img.src = imageData;
     });
 }
 

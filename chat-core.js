@@ -218,7 +218,16 @@ async function handleAvatarFileInputChange(e) {
 
     const reader = new FileReader();
     reader.onload = async function(event) {
-        const croppedImage = await cropImageToSquare(event.target.result);
+        const isWallpaper = state.uploadMode === 'background' || state.uploadMode === 'profileBackground';
+        const cropSize = isWallpaper ? 1080 : undefined;
+        let croppedImage;
+        try {
+            croppedImage = await cropImageToSquare(event.target.result, cropSize);
+        } catch (err) {
+            console.warn('图片处理失败:', err);
+            alert('图片处理失败，请换一张试试');
+            return;
+        }
 
         if (isAccountAvatarEditing()) {
             state.editingAvatar = croppedImage;
