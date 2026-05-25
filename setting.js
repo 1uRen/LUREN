@@ -58,8 +58,7 @@ function renderSettingsApp() {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 15px 20px;
-                padding-top: calc(15px + var(--safe-top, env(safe-area-inset-top, 0px)));
+                padding: calc(10px + var(--safe-top, env(safe-area-inset-top, 0px))) 16px 10px;
                 background: white;
                 border-bottom: 1px solid #e5e5e5;
                 position: sticky;

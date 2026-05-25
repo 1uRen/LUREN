@@ -12,7 +12,9 @@
     --safe-bottom: env(safe-area-inset-bottom, 0px);
     --safe-left: env(safe-area-inset-left, 0px);
     --safe-right: env(safe-area-inset-right, 0px);
-    --header-offset: 50px;
+    --header-offset: 0px;
+    --header-pad-y: 10px;
+    --tab-bar-pad-y: 6px;
 }
 
 /* 任意支持 safe-area 的浏览器（现代手机 WebView / PWA 均支持） */
@@ -75,8 +77,8 @@ body {
         flex-direction: column;
         overflow: hidden;
         background-color: var(--app-bg);
-        /* 底部安全区交给 .bottom-nav，避免各机型双重留白 */
-        padding: var(--safe-top) var(--safe-right) 0 var(--safe-left);
+        /* 顶/底安全区分别由 header、bottom-nav 承担，避免重复留白 */
+        padding: 0 var(--safe-right) 0 var(--safe-left);
     }
 
     .iphone-container > .chat-app,
@@ -156,17 +158,17 @@ body {
     width: 100%;
     background: var(--tab-bar-bg);
     border-top: 1px solid #e5e5e5;
-    padding: 10px 8px;
-    padding-bottom: max(12px, var(--safe-bottom));
+    padding: var(--tab-bar-pad-y) 8px;
+    padding-bottom: calc(var(--tab-bar-pad-y) + var(--safe-bottom));
     box-sizing: border-box;
 }
 
 .chat-header {
-    padding-top: calc(var(--header-offset) + var(--safe-top)) !important;
+    padding: calc(var(--header-pad-y) + var(--safe-top)) 16px var(--header-pad-y) !important;
 }
 
 .chat-fullscreen .chat-header {
-    padding-top: calc(var(--header-offset) + var(--safe-top)) !important;
+    padding: calc(var(--header-pad-y) + var(--safe-top)) 12px var(--header-pad-y) !important;
 }
 
 .chat-fullscreen .chat-input-stack {
@@ -179,22 +181,10 @@ body {
     padding-bottom: max(8px, var(--safe-bottom));
 }
 
-/* 超小屏：略减顶栏占位 */
-@media (max-width: 360px) {
-    :root { --header-offset: 46px; }
-}
-
-/* 大屏手机 / 折叠屏内屏 */
-@media (min-width: 431px) and (max-width: 768px) {
-    :root { --header-offset: 52px; }
-}
-
-/* 横屏手机 */
+/* 横屏手机：再收紧顶底栏 */
 @media (max-height: 500px) and (orientation: landscape) {
-    :root { --header-offset: 40px; }
-    .bottom-nav {
-        padding-top: 6px;
-        padding-bottom: max(8px, var(--safe-bottom));
+    :root {
+        --header-pad-y: 8px;
+        --tab-bar-pad-y: 4px;
     }
-    .nav-item { min-height: 40px; }
 }
