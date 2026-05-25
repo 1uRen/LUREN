@@ -76,9 +76,10 @@
             .iphone-container {
                 width: 100vw;
                 height: 100%;
-                min-height: 100vh;
+                min-height: 100dvh;
                 min-height: -webkit-fill-available;
-                max-height: none;
+                max-height: 100dvh;
+                max-height: -webkit-fill-available;
                 border-radius: 0;
                 box-shadow: none;
                 padding-top: env(safe-area-inset-top, 0px);
@@ -87,11 +88,17 @@
                 padding-right: env(safe-area-inset-right, 0px);
             }
 
-            .iphone-container > .chat-app {
+            .iphone-container > .chat-app,
+            .iphone-container > .settings-app {
                 flex: 1;
                 min-height: 0;
                 width: 100%;
-                height: 100%;
+                height: auto;
+                max-height: 100%;
+            }
+
+            .iphone-container > .home-indicator {
+                display: none;
             }
         }
 
@@ -220,13 +227,14 @@
 
         .home-indicator {
             position: absolute;
-            bottom: 10px;
+            bottom: calc(10px + env(safe-area-inset-bottom, 0px));
             left: 50%;
             transform: translateX(-50%);
             width: 134px;
             height: 5px;
             background: rgba(0, 0, 0, 0.3);
             border-radius: 2.5px;
+            pointer-events: none;
         }
 
         .modal {
@@ -429,6 +437,7 @@
     <script src="chat-wallet.js"></script>
     <script src="chat-render-wallet.js"></script>
     <script src="chat.js"></script>
+    <script>window.__APP_VERSION__ = 'v0.1.2';</script>
     <script src="setting.js"></script>
 
     <script>
@@ -515,21 +524,35 @@
         });
 
         if ('serviceWorker' in navigator) {
+            let swReloading = false;
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (swReloading) return;
+                swReloading = true;
+                location.reload();
+            });
+
             window.addEventListener('load', async () => {
                 try {
                     const registration = await navigator.serviceWorker.register('./service-worker.js');
-                    console.log('Service Worker 注册成功:', registration);
-                    
+                    await registration.update();
+
                     registration.addEventListener('updatefound', () => {
                         const newWorker = registration.installing;
+                        if (!newWorker) return;
                         newWorker.addEventListener('statechange', () => {
                             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                console.log('有新版本可用，请刷新页面');
+                                newWorker.postMessage({ type: 'SKIP_WAITING' });
                             }
                         });
                     });
                 } catch (error) {
                     console.warn('Service Worker 注册失败:', error);
+                }
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible' && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.ready.then((registration) => registration.update());
                 }
             });
         }

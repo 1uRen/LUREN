@@ -1,4 +1,6 @@
-const APP_VERSION = 'v0.1.1';
+function getAppVersion() {
+    return (typeof window !== 'undefined' && window.__APP_VERSION__) || 'v0.1.2';
+}
 
 const settingsState = {
     currentPage: 'main',
@@ -55,6 +57,8 @@ function renderSettingsApp() {
                 display: flex;
                 flex-direction: column;
                 position: relative;
+                box-sizing: border-box;
+                padding-bottom: env(safe-area-inset-bottom, 0px);
             }
             
             .settings-header {
@@ -286,13 +290,19 @@ function renderSettingsApp() {
             
             .home-indicator {
                 position: absolute;
-                bottom: 10px;
+                bottom: calc(10px + env(safe-area-inset-bottom, 0px));
                 left: 50%;
                 transform: translateX(-50%);
                 width: 134px;
                 height: 5px;
                 background: rgba(0, 0, 0, 0.3);
                 border-radius: 2.5px;
+            }
+
+            @media (max-width: 768px), (max-height: 800px) {
+                .settings-app .home-indicator {
+                    display: none;
+                }
             }
             
             .saved-badge {
@@ -370,7 +380,7 @@ function renderSettingsMain() {
                         </div>
                     </div>
                 </div>
-                <div class="settings-version">${APP_VERSION}</div>
+                <div class="settings-version">${getAppVersion()}</div>
             </div>
             <input type="file" id="importFileInput" accept=".json" style="display: none;">
         </div>

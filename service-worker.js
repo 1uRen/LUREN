@@ -1,4 +1,4 @@
-const CACHE_NAME = "xiaoshouji-pwa-v4";
+const CACHE_NAME = "xiaoshouji-pwa-v6";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -42,6 +42,14 @@ const CORE_ASSETS = [
   "./split-chat-render.js"
 ];
 
+function isAppShellRequest(request) {
+  if (request.method !== "GET") return false;
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return false;
+  if (url.pathname.endsWith("/") || url.pathname.endsWith(".html")) return true;
+  return /\.(js|css|webmanifest)$/i.test(url.pathname);
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
@@ -71,15 +79,17 @@ self.addEventListener("message", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
+  if (isAppShellRequest(event.request)) {
+    event.respondWith(networkFirst(event.request));
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
       return fetch(event.request)
         .then((response) => {
-          const isHttp = event.request.url.startsWith("http");
-          if (!isHttp || !response || response.status !== 200 || response.type !== "basic") {
-            return response;
-          }
+          if (!response || response.status !== 200) return response;
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
           return response;
@@ -88,3 +98,17 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
+function networkFirst(request) {
+  return fetch(request)
+    .then((response) => {
+      if (response && response.status === 200) {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+      }
+      return response;
+    })
+    .catch(() =>
+      caches.match(request).then((cached) => cached || caches.match("./index.html"))
+    );
+}
