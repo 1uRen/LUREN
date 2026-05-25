@@ -1,4 +1,4 @@
-const CACHE_NAME = "xiaoshouji-pwa-v18";
+const CACHE_NAME = "xiaoshouji-pwa-v19";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -48,13 +48,49 @@ function isAppShellRequest(request) {
   if (request.method !== "GET") return false;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return false;
+  if (url.pathname.endsWith("/service-worker.js")) return false;
   if (url.pathname.endsWith("/") || url.pathname.endsWith(".html")) return true;
   return /\.(js|css|webmanifest)$/i.test(url.pathname);
 }
 
+function isNavigationRequest(request) {
+  if (request.mode === "navigate") return true;
+  const accept = request.headers.get("accept") || "";
+  return accept.includes("text/html");
+}
+
+function fetchNoStore(request) {
+  return fetch(new Request(request, { cache: "no-store" }));
+}
+
+function putInCache(request, response) {
+  if (!response || response.status !== 200) return;
+  const copy = response.clone();
+  caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+}
+
+function networkFirst(request) {
+  return fetchNoStore(request)
+    .then((response) => {
+      putInCache(request, response);
+      return response;
+    })
+    .catch(() =>
+      caches.match(request).then((cached) => cached || caches.match("./index.html"))
+    );
+}
+
+function networkOnly(request) {
+  return fetchNoStore(request).catch(() =>
+    caches.match(request).then((cached) => cached || caches.match("./index.html"))
+  );
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS))
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.allSettled(CORE_ASSETS.map((asset) => cache.add(asset)))
+    )
   );
   self.skipWaiting();
 });
@@ -66,10 +102,9 @@ self.addEventListener("activate", (event) => {
         keys
           .filter((key) => key !== CACHE_NAME)
           .map((key) => caches.delete(key))
-      )
+      ).then(() => self.clients.claim())
     )
   );
-  self.clients.claim();
 });
 
 self.addEventListener("message", (event) => {
@@ -81,36 +116,18 @@ self.addEventListener("message", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
-  if (isAppShellRequest(event.request)) {
-    event.respondWith(networkFirst(event.request));
+  const url = new URL(event.request.url);
+  if (url.pathname.endsWith("/service-worker.js")) {
+    event.respondWith(fetchNoStore(event.request));
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then((response) => {
-          if (!response || response.status !== 200) return response;
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          return response;
-        })
-        .catch(() => caches.match("./index.html"));
-    })
-  );
-});
+  if (isNavigationRequest(event.request)) {
+    event.respondWith(networkOnly(event.request));
+    return;
+  }
 
-function networkFirst(request) {
-  return fetch(request)
-    .then((response) => {
-      if (response && response.status === 200) {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-      }
-      return response;
-    })
-    .catch(() =>
-      caches.match(request).then((cached) => cached || caches.match("./index.html"))
-    );
-}
+  if (isAppShellRequest(event.request)) {
+    event.respondWith(networkFirst(event.request));
+  }
+});
