@@ -20,6 +20,8 @@ function initChatApp() {
 
     const container = document.querySelector('.iphone-container');
     if (!container) return;
+    document.body.classList.remove('mode-home', 'mode-settings');
+    document.body.classList.add('mode-chat');
     container.style.height = '';
     container.style.paddingBottom = '';
     container.innerHTML = renderChatApp();

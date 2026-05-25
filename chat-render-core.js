@@ -12,10 +12,11 @@ function shouldHideMainNav() {
 }
 
 function renderChatApp() {
+    const showTabBar = !shouldHideMainNav() && !state.walletOpen;
     return `
         <div class="chat-app">
             ${renderSidebar()}
-            <div class="main-content">
+            <div class="main-content${showTabBar ? ' with-tab-bar' : ''}">
                 ${renderHeader()}
                 ${renderContent()}
                 ${renderBottomNav()}

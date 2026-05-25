@@ -1,5 +1,5 @@
 function getAppVersion() {
-    return (typeof window !== 'undefined' && window.__APP_VERSION__) || 'v0.1.4';
+    return (typeof window !== 'undefined' && window.__APP_VERSION__) || 'v0.1.5';
 }
 
 const settingsState = {
@@ -39,6 +39,8 @@ function initSettingsApp() {
     
     const container = document.querySelector('.iphone-container');
     if (!container) return;
+    document.body.classList.remove('mode-home', 'mode-chat');
+    document.body.classList.add('mode-settings');
     container.innerHTML = renderSettingsApp();
     attachSettingsListeners();
 }
