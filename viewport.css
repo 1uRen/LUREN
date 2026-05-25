@@ -14,7 +14,8 @@
     --safe-right: env(safe-area-inset-right, 0px);
     --header-offset: 0px;
     --header-pad-y: 10px;
-    --tab-bar-pad-y: 6px;
+    --tab-bar-pad-y: 4px;
+    --home-wall-bg: #e6dfd0;
 }
 
 /* 任意支持 safe-area 的浏览器（现代手机 WebView / PWA 均支持） */
@@ -50,7 +51,7 @@ body {
 (max-height: 800px),
 ((hover: none) and (pointer: coarse) and (max-width: 1024px)) {
     html {
-        background-color: var(--tab-bar-bg);
+        background-color: var(--home-wall-bg);
     }
 
     body {
@@ -58,6 +59,18 @@ body {
         flex-direction: column;
         justify-content: stretch;
         align-items: stretch;
+        background-color: var(--home-wall-bg);
+        padding-bottom: var(--safe-bottom);
+        box-sizing: border-box;
+    }
+
+    body:has(.chat-app),
+    body:has(.settings-app) {
+        background-color: var(--tab-bar-bg);
+    }
+
+    html:has(.chat-app),
+    html:has(.settings-app) {
         background-color: var(--tab-bar-bg);
     }
 
@@ -67,7 +80,7 @@ body {
         width: 100%;
         min-width: 0;
         min-height: 0;
-        height: auto;
+        height: 100%;
         max-height: none;
         margin: 0;
         border-radius: 0;
@@ -77,8 +90,13 @@ body {
         flex-direction: column;
         overflow: hidden;
         background-color: var(--app-bg);
-        /* 顶/底安全区分别由 header、bottom-nav 承担，避免重复留白 */
-        padding: 0 var(--safe-right) 0 var(--safe-left);
+        padding: var(--safe-top) var(--safe-right) 0 var(--safe-left);
+    }
+
+    .iphone-container:has(.chat-app),
+    .iphone-container:has(.settings-app) {
+        padding-top: 0;
+        background-color: var(--app-bg);
     }
 
     .iphone-container > .chat-app,
@@ -87,6 +105,23 @@ body {
         min-height: 0;
         width: 100%;
         height: 100%;
+    }
+
+    /* 主界面：铺满壁纸，底部只留安全区，去掉大块空白 */
+    .iphone-container > .time-section {
+        flex-shrink: 0;
+        padding-top: 12px;
+    }
+
+    .iphone-container > .banner-section {
+        flex-shrink: 0;
+    }
+
+    .iphone-container > .icons-section {
+        flex: 1;
+        min-height: 0;
+        padding: 16px 20px 12px;
+        justify-content: flex-start;
     }
 
     .iphone-container > .home-indicator {
@@ -158,8 +193,7 @@ body {
     width: 100%;
     background: var(--tab-bar-bg);
     border-top: 1px solid #e5e5e5;
-    padding: var(--tab-bar-pad-y) 8px;
-    padding-bottom: calc(var(--tab-bar-pad-y) + var(--safe-bottom));
+    padding: var(--tab-bar-pad-y) 6px var(--tab-bar-pad-y);
     box-sizing: border-box;
 }
 
