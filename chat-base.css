@@ -515,25 +515,52 @@ input:checked + .slider:before { transform:translateX(20px); }
     .user-nickname { font-size: 16px; }
 }
 
-/* iOS Safari：避免 100vh 撑出底部空白，不裁切底栏 */
+/* iOS Safari：铺满屏幕，底部安全区与底栏同色，避免白边 */
 @supports (-webkit-touch-callout: none) {
-    html, body {
+    html {
         height: 100%;
+        min-height: 100dvh;
         min-height: -webkit-fill-available;
+        background-color: #F0E8D4;
+    }
+    body {
+        height: 100%;
+        min-height: 100dvh;
+        min-height: -webkit-fill-available;
+        background-color: #F0E8D4;
     }
     .iphone-container {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100% !important;
         height: 100% !important;
+        min-height: 100dvh !important;
         min-height: -webkit-fill-available !important;
+        box-sizing: border-box !important;
+        padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+        background-color: #FAF6EB !important;
     }
     .iphone-container > .chat-app,
     .iphone-container > .settings-app {
         flex: 1 !important;
         min-height: 0 !important;
         height: 100% !important;
+        background-color: #FAF6EB !important;
     }
     .main-content { flex: 1 !important; min-height: 0 !important; }
-    .bottom-nav { margin-top: auto !important; }
+    .bottom-nav {
+        margin-top: auto !important;
+        padding-bottom: 10px !important;
+        background-color: #F0E8D4 !important;
+    }
     .sidebar { height: 100% !important; }
+    .chat-fullscreen .chat-input-stack,
+    .chat-fullscreen .chat-input-bar {
+        padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    }
 }
 
 /* 华为/鸿蒙：顶栏安全区兜底（底栏只用 env，避免切换页后重复留白） */

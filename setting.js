@@ -1,5 +1,5 @@
 function getAppVersion() {
-    return (typeof window !== 'undefined' && window.__APP_VERSION__) || 'v0.1.2';
+    return (typeof window !== 'undefined' && window.__APP_VERSION__) || 'v0.1.3';
 }
 
 const settingsState = {
