@@ -28,6 +28,12 @@
 }
 
 /* add-friend plus/check icons (override .chat-app button text color) */
+.chat-app .transfer-detail-refund-link {
+    color:#E48C64 !important;
+    -webkit-text-fill-color:#E48C64 !important;
+    background:transparent !important;
+}
+
 .chat-app .add-friend-add-btn .add-friend-action-icon {
     background-color:#E48C64 !important;
 }
@@ -49,4 +55,13 @@
 .chat-app .message-search-more-btn,
 .chat-app .message-search-recent-clear {
     color:#E48C64 !important;
+}
+
+/* 转账页提交按钮：橙色底 + 白字（覆盖 .chat-app button 全局色） */
+.chat-app .transfer-submit-btn {
+    color:#ffffff !important;
+    background:#E48C64 !important;
+}
+.chat-app .transfer-submit-btn:active {
+    color:#ffffff !important;
 }

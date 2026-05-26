@@ -94,6 +94,24 @@ function appendAssistantReplyPlan(contactId, plan) {
                 return;
             }
 
+            if (action.op === 'payment') {
+                const contact = getContactForAI(state.currentChatContact) || state.currentChatContact;
+                if (typeof roleExecutePaymentOp === 'function') {
+                    roleExecutePaymentOp(action.action, activeChat, contact);
+                }
+                state.autoScrollNext = true;
+                saveStateToStorage();
+                initChatApp();
+
+                const payDelay = queue.length ? 280 : 0;
+                if (!queue.length) {
+                    resolve();
+                    return;
+                }
+                setTimeout(runNext, payDelay);
+                return;
+            }
+
             const sent = pushAssistantMessageItem(activeChat, action.item);
             state.autoScrollNext = true;
             if (sent) {
@@ -125,7 +143,7 @@ function appendAssistantReplyPlan(contactId, plan) {
 function filterInvalidStickersFromPlan(plan) {
     const steps = [];
     (plan?.steps || []).forEach(step => {
-        if (step.type === 'withdraw') {
+        if (step.type === 'withdraw' || step.type === 'payment') {
             steps.push(step);
             return;
         }
@@ -159,7 +177,9 @@ function hasInvalidStickerIntents(replyMessages) {
 }
 
 function salvageAssistantReplyPlan(rawReply, contactSetting, chat) {
-    const cleaned = stripQuoteTagsFromText(stripWithdrawTagsFromText(rawReply));
+    const cleaned = stripQuoteTagsFromText(
+        stripPaymentTagsFromText(stripWithdrawTagsFromText(rawReply))
+    );
     if (!cleaned || cleaned.length < 2 || isPunctuationOnlyText(cleaned)) return null;
     const salvaged = filterInvalidStickersFromPlan(buildAssistantReplyPlanFromRaw(cleaned, contactSetting, chat));
     return countPlanSendMessages(salvaged) > 0 ? salvaged : null;
@@ -244,6 +264,10 @@ function receiveMessage() {
         appendContinuationTrigger(messages, { hasContext });
     }
 
+    if (typeof appendPaymentPendingGuard === 'function') {
+        appendPaymentPendingGuard(messages, chat);
+    }
+
     messages.unshift({
         role: 'system',
         content: setting
@@ -317,6 +341,10 @@ function fetchAIResponse(userMessage) {
             return !!String(msg.text || '').trim();
         });
         appendContinuationTrigger(messages, { hasContext });
+    }
+
+    if (typeof appendPaymentPendingGuard === 'function') {
+        appendPaymentPendingGuard(messages, chat);
     }
 
     messages.unshift({

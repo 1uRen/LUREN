@@ -282,6 +282,10 @@ function renderModals() {
         modals += renderForwardModal();
     }
 
+    if (typeof renderRedPacketModal === 'function') {
+        modals += renderRedPacketModal();
+    }
+
     return modals + '<input type="file" id="fileInput" class="hidden-file-input" accept="image/*">';
 }
 
@@ -352,19 +356,21 @@ function renderMessageContextMenu() {
     const msg = chat?.messages?.[state.messageContextMenu.messageIndex];
     if (!msg) return '';
 
-    const editDisabledClass = msg.withdrawn ? ' disabled' : '';
+    const isPayment = !!msg.paymentType;
+    const isSystemNotice = !!msg.isSystemNotice;
+    const editDisabledClass = (msg.withdrawn || isPayment || isSystemNotice) ? ' disabled' : '';
     const currentAssistantRound = getCurrentAssistantRoundRange(chat);
     const idx = state.messageContextMenu.messageIndex;
-    const canReplayCurrentRound = !msg.isMine && !msg.withdrawn && currentAssistantRound
+    const canReplayCurrentRound = !msg.isMine && !msg.withdrawn && !isPayment && !isSystemNotice && currentAssistantRound
         && idx >= currentAssistantRound.start
         && idx <= currentAssistantRound.end;
 
     const items = [
-        { label: '编辑', onclick: 'openEditMessage()', className: editDisabledClass.trim() },
+        !isPayment && !isSystemNotice ? { label: '编辑', onclick: 'openEditMessage()', className: editDisabledClass.trim() } : null,
         !msg.withdrawn ? { label: '复制', onclick: 'copyMessage()' } : null,
-        msg.isMine ? { label: '撤回', onclick: 'withdrawMessage()', className: msg.withdrawn ? 'disabled' : '' } : null,
+        msg.isMine && !isPayment && !isSystemNotice ? { label: '撤回', onclick: 'withdrawMessage()', className: msg.withdrawn ? 'disabled' : '' } : null,
         canReplayCurrentRound ? { label: '重回', onclick: 'reopenAssistantRound()' } : null,
-        !msg.withdrawn ? { label: '引用', onclick: 'quoteMessage()' } : null,
+        !msg.withdrawn && !isPayment && !isSystemNotice ? { label: '引用', onclick: 'quoteMessage()' } : null,
         { label: '多选', onclick: 'enterMessageSelectMode()' },
         { label: '删除', onclick: 'deleteMessage()', className: 'danger' }
     ].filter(Boolean);

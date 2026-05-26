@@ -115,8 +115,23 @@ Strict — follow exactly. Tags below ARE real chat output (unlike [Compact exam
   [语音]烦死了赶紧说别磨叽。听到了没？
 - Example voice + text (two bubbles):
   [语音]烦死了赶紧说别磨叽。
-  听到了没？`;
+  听到了没？
+- Payment (one action per line; decide per [Character setting]; only if user has pending items or you intend to send):
+  [发红包:金额:祝福语] — send red packet to user (greeting optional)
+  [转账:金额:备注] — send transfer to user (note optional)
+  [领取红包] — claim user's pending red packet
+  [领取转账] — accept user's pending transfer
+  [拒收转账] — reject user's pending transfer (refund to user)
+  [退还转账] or [退还转账:金额:备注] — refund user's received transfer (amount optional; latest if omitted); sends instant「退还转账」card to user. One line only.
+  Payment tags execute with this reply batch after your chat lines — do not assume money moved before you output the tag.`;
 }
+
+const PAYMENT_CLAIM_RED_PATTERN = /\[(?:领取红包|claim\s*red\s*packet)\]/gi;
+const PAYMENT_ACCEPT_TRANSFER_PATTERN = /\[(?:领取转账|accept\s*transfer)\]/gi;
+const PAYMENT_REJECT_TRANSFER_PATTERN = /\[(?:拒收转账|reject\s*transfer)\]/gi;
+const PAYMENT_REFUND_TRANSFER_PATTERN = /\[(?:退还转账|refund\s*transfer)(?:\s*[:：#]\s*([\d.]+)(?:\s*[:：#]\s*([^\]]*))?)?\]/gi;
+const PAYMENT_SEND_RED_PATTERN = /\[(?:发红包|red\s*packet)\s*[:：#]?\s*([\d.]+)(?:\s*[:：#]\s*([^\]]*))?\]/gi;
+const PAYMENT_SEND_TRANSFER_PATTERN = /\[(?:转账|transfer)\s*[:：#]?\s*([\d.]+)(?:\s*[:：#]\s*([^\]]*))?\]/gi;
 
 const WITHDRAW_TAG_PATTERN = /\[(?:撤回|withdraw)\s*(?:(?:[:：#]\s*)?(\d+|上一条|上1条|last)|\s*(上一条|上1条|last))\]/gi;
 const QUOTE_LINE_TAG_PATTERN = /^\[(?:引用|quote)\s*(?:(?:[:：#]\s*)?(\d+|上一条|上1条|last)|\s*(上一条|上1条|last))\]\s*$/i;
@@ -237,11 +252,70 @@ function resolveCurrentRoundWithdrawIndex(chat, rawRef, roundStartIndex) {
     return roundAssistantIndices[n - 1] ?? -1;
 }
 
+function collectReplyActionMatches(text) {
+    const matches = [];
+    const addMatches = (pattern, mapper) => {
+        const re = new RegExp(pattern.source, pattern.flags);
+        let m;
+        while ((m = re.exec(text)) !== null) {
+            matches.push(mapper(m));
+        }
+    };
+
+    addMatches(WITHDRAW_TAG_PATTERN, m => ({
+        index: m.index ?? 0,
+        length: m[0].length,
+        type: 'withdraw',
+        ref: m[1] || m[2] || 'last'
+    }));
+    addMatches(PAYMENT_CLAIM_RED_PATTERN, m => ({
+        index: m.index ?? 0,
+        length: m[0].length,
+        type: 'payment',
+        action: 'claimRedPacket'
+    }));
+    addMatches(PAYMENT_ACCEPT_TRANSFER_PATTERN, m => ({
+        index: m.index ?? 0,
+        length: m[0].length,
+        type: 'payment',
+        action: 'acceptTransfer'
+    }));
+    addMatches(PAYMENT_REJECT_TRANSFER_PATTERN, m => ({
+        index: m.index ?? 0,
+        length: m[0].length,
+        type: 'payment',
+        action: 'rejectTransfer'
+    }));
+    addMatches(PAYMENT_REFUND_TRANSFER_PATTERN, m => ({
+        index: m.index ?? 0,
+        length: m[0].length,
+        type: 'payment',
+        action: m[1]
+            ? { type: 'refundTransfer', amount: m[1], note: (m[2] || '').trim() }
+            : 'refundTransfer'
+    }));
+    addMatches(PAYMENT_SEND_RED_PATTERN, m => ({
+        index: m.index ?? 0,
+        length: m[0].length,
+        type: 'payment',
+        action: { type: 'sendRedPacket', amount: m[1], greeting: (m[2] || '').trim() }
+    }));
+    addMatches(PAYMENT_SEND_TRANSFER_PATTERN, m => ({
+        index: m.index ?? 0,
+        length: m[0].length,
+        type: 'payment',
+        action: { type: 'sendTransfer', amount: m[1], note: (m[2] || '').trim() }
+    }));
+
+    matches.sort((a, b) => a.index - b.index);
+    return matches;
+}
+
 function parseAssistantReplyPipeline(rawReply) {
     const text = ChatApi.normalizeAssistantContent(rawReply).trim();
     if (!text) return { steps: [], withdrew: false };
 
-    const matches = [...text.matchAll(WITHDRAW_TAG_PATTERN)];
+    const matches = collectReplyActionMatches(text);
     if (!matches.length) {
         return {
             steps: [{ type: 'messages', rawChunk: text }],
@@ -258,12 +332,13 @@ function parseAssistantReplyPipeline(rawReply) {
         const chunk = text.slice(cursor, index).trim();
         if (chunk) steps.push({ type: 'messages', rawChunk: chunk });
 
-        steps.push({
-            type: 'withdraw',
-            ref: match[1] || match[2] || 'last'
-        });
-        withdrew = true;
-        cursor = index + match[0].length;
+        if (match.type === 'withdraw') {
+            steps.push({ type: 'withdraw', ref: match.ref });
+            withdrew = true;
+        } else if (match.type === 'payment') {
+            steps.push({ type: 'payment', action: match.action });
+        }
+        cursor = index + match.length;
     });
 
     const tail = text.slice(cursor).trim();
@@ -281,6 +356,10 @@ function buildAssistantReplyPlanFromRaw(rawReply, contactSetting, chat) {
     pipeline.steps.forEach(step => {
         if (step.type === 'withdraw') {
             steps.push({ type: 'withdraw', ref: step.ref });
+            return;
+        }
+        if (step.type === 'payment') {
+            steps.push({ type: 'payment', action: step.action });
             return;
         }
         if (step.type !== 'messages' || !step.rawChunk) return;
@@ -303,6 +382,10 @@ function flattenAssistantReplyPlan(plan) {
     (plan?.steps || []).forEach(step => {
         if (step.type === 'withdraw') {
             queue.push({ op: 'withdraw', ref: step.ref });
+            return;
+        }
+        if (step.type === 'payment') {
+            queue.push({ op: 'payment', action: step.action });
             return;
         }
         if (step.type === 'messages') {
@@ -342,6 +425,11 @@ function rebuildPlanFromQueue(queue) {
         if (op?.op === 'withdraw') {
             flushBatch();
             steps.push({ type: 'withdraw', ref: op.ref || 'last' });
+            return;
+        }
+        if (op?.op === 'payment') {
+            flushBatch();
+            steps.push({ type: 'payment', action: op.action });
         }
     });
     flushBatch();
@@ -383,6 +471,36 @@ function stripWithdrawTagsFromText(text) {
         .replace(WITHDRAW_TAG_PATTERN, ' ')
         .replace(/\s+/g, ' ')
         .trim();
+}
+
+function stripPaymentTagsFromText(text) {
+    return String(text || '')
+        .replace(PAYMENT_CLAIM_RED_PATTERN, ' ')
+        .replace(PAYMENT_ACCEPT_TRANSFER_PATTERN, ' ')
+        .replace(PAYMENT_REJECT_TRANSFER_PATTERN, ' ')
+        .replace(PAYMENT_REFUND_TRANSFER_PATTERN, ' ')
+        .replace(/\[退还转账[^\]\n]*/gi, ' ')
+        .replace(/^\d+(?:\.\d+)?[:：][^\]]*\]\s*$/gim, ' ')
+        .replace(PAYMENT_SEND_RED_PATTERN, ' ')
+        .replace(PAYMENT_SEND_TRANSFER_PATTERN, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function appendPaymentPendingGuard(messages, chat) {
+    if (!Array.isArray(messages) || !chat) return;
+    if (typeof sweepExpiredPayments === 'function') {
+        sweepExpiredPayments(chat);
+    }
+    if (typeof collectPendingPaymentsForGuard !== 'function') return;
+    const pending = collectPendingPaymentsForGuard(chat);
+    if (!pending.length) return;
+    messages.push({
+        role: 'system',
+        content: `[Payment pending — decide in character]
+${pending.join('\n')}
+Use [领取转账]/[拒收转账]/[领取红包] only if it fits your [Character setting] and relationship. Output payment tags in this same reply batch together with chat lines. Do not claim before you output the tag.`
+    });
 }
 
 function stripQuoteTagsFromText(text) {
@@ -852,7 +970,7 @@ function collectRecentAssistantUpdates(chat, maxItems = 4) {
 
     for (let i = msgs.length - 1; i >= 0; i--) {
         const msg = msgs[i];
-        if (!msg || msg.withdrawn || msg.isMine || msg.isMockVoice || msg.isMockImage || msg.isCameraImage) continue;
+        if (!msg || msg.withdrawn || msg.isMine || msg.isMockVoice || msg.isMockImage || msg.isCameraImage || msg.paymentType || msg.isSystemNotice) continue;
         const text = String(msg.text || '').trim();
         if (!text || text.length < 6) continue;
         const key = text
@@ -917,6 +1035,18 @@ function getMessageContentForAI(msg, contactName, depth = 0) {
             ? getQuotedMessageDisplayText(msg.quotedMessage)
             : (msg.quotedMessage.text || '(无内容)');
         content = `[引用:${quoteAuthor}] ${quoteText}\n[回复] ${content}`;
+    }
+    if (msg.isSystemNotice) {
+        return String(msg.text || '').trim();
+    }
+    if (msg.paymentType === 'redPacket') {
+        const st = msg.status === 'pending' ? '待领取' : (msg.status === 'expired' ? '已过期' : '已领取');
+        content = `[红包] ¥${msg.amount} ${msg.greeting || '恭喜发财'} (${st})`;
+    }
+    if (msg.paymentType === 'transfer') {
+        const stMap = { pending: '待收款', claimed: '已收款', rejected: '已拒收', expired: '已过期' };
+        const st = stMap[msg.status] || msg.status;
+        content = `[转账] ¥${msg.amount} ${msg.note || ''} (${st})`;
     }
     if (msg.isMockVoice) {
         const voiceText = String(content || '').trim();

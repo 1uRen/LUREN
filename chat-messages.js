@@ -1,7 +1,8 @@
 // chat-messages module
 function sendMessage() {
     const input = document.getElementById('chatInput');
-    const text = (input?.value || '').trim();
+    if (!input || state.chatInputComposing) return;
+    const text = (input.value || '').trim();
     if (!text) return;
     
     const chat = state.chats.find(c => c.contact.qqId === state.currentChatContact.qqId);
@@ -27,16 +28,43 @@ function sendMessage() {
 
 function setChatInputComposing(isComposing) {
     state.chatInputComposing = !!isComposing;
+    if (isComposing) {
+        state.keepChatInputFocusNextRender = true;
+    }
+}
+
+function flushPendingInitChatApp() {
+    if (!state.pendingInitChatAppWhileComposing) return;
+    state.pendingInitChatAppWhileComposing = false;
+    initChatApp();
+}
+
+function handleChatInputCompositionEnd(el) {
+    state.chatInputComposing = false;
+    const input = el || document.getElementById('chatInput');
+    const value = input?.value || '';
+    const selectionStart = input?.selectionStart;
+    const selectionEnd = input?.selectionEnd;
+    updateChatInputStickerSuggest(value, selectionStart, selectionEnd, false);
+    if (state.pendingInitChatAppWhileComposing) {
+        flushPendingInitChatApp();
+        return;
+    }
+    updateChatInputStickerSuggest(value, selectionStart, selectionEnd, true);
 }
 
 function updateChatInputStickerSuggest(value, selectionStart = null, selectionEnd = null, shouldRender = true) {
+    if (state.chatInputComposing) {
+        if (Number.isInteger(selectionStart)) state.chatInputSelectionStart = selectionStart;
+        if (Number.isInteger(selectionEnd)) state.chatInputSelectionEnd = selectionEnd;
+        return;
+    }
     state.chatInputStickerSuggestKeyword = value || '';
     state.chatInputSelectionStart = Number.isInteger(selectionStart) ? selectionStart : null;
     state.chatInputSelectionEnd = Number.isInteger(selectionEnd) ? selectionEnd : null;
     
     // 移动端优化：只有当贴纸建议变化时才重新渲染，避免频繁触发
-    const hasStickerKeyword = (value || '').trim().length > 0;
-    if (!shouldRender || state.chatInputComposing) return;
+    if (!shouldRender) return;
     
     // 使用防抖避免频繁渲染
     if (window.stickerSuggestDebounceTimer) {
@@ -51,7 +79,11 @@ function updateChatInputStickerSuggest(value, selectionStart = null, selectionEn
 }
 
 function handleChatInputChange(value, selectionStart = null, selectionEnd = null, eventIsComposing = false) {
-    // 只要不是正在输入，就更新，但渲染使用防抖
+    if (eventIsComposing || state.chatInputComposing) {
+        if (Number.isInteger(selectionStart)) state.chatInputSelectionStart = selectionStart;
+        if (Number.isInteger(selectionEnd)) state.chatInputSelectionEnd = selectionEnd;
+        return;
+    }
     updateChatInputStickerSuggest(value, selectionStart, selectionEnd, false);
 }
 
@@ -62,6 +94,7 @@ function handleChatInputKeyup(value, selectionStart = null, selectionEnd = null,
 
 function handleChatInputKeydown(event) {
     if (!event) return;
+    if (state.chatInputComposing || event.isComposing) return;
     if (event.keyCode === 13) {
         event.preventDefault();
         sendMessage();
@@ -239,7 +272,7 @@ function getPhoneScreenBounds() {
 function getMessageBubbleAnchor(messageIndex) {
     const item = document.querySelector(`.chat-fullscreen .message-item[data-message-index="${messageIndex}"]`);
     if (!item) return null;
-    const bubble = item.querySelector('.message-bubble') || item;
+    const bubble = item.querySelector('.message-bubble, .message-system-notice-wrap') || item;
     const rect = bubble.getBoundingClientRect();
     return {
         centerX: rect.left + rect.width / 2,
@@ -420,7 +453,9 @@ function copyMessage() {
         return;
     }
 
-    const text = String(msg.text || '').trim();
+    const text = typeof getMessageDisplayCopyText === 'function'
+        ? getMessageDisplayCopyText(msg)
+        : String(msg.text || '').trim();
     if (!text) {
         hideMessageContextMenu();
         return;
@@ -601,6 +636,7 @@ function reopenAssistantRound() {
 
 window.sendMessage = sendMessage;
 window.setChatInputComposing = setChatInputComposing;
+window.handleChatInputCompositionEnd = handleChatInputCompositionEnd;
 window.handleChatInputChange = handleChatInputChange;
 window.handleChatInputKeyup = handleChatInputKeyup;
 window.handleChatInputKeydown = handleChatInputKeydown;

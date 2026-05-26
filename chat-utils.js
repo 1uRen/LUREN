@@ -16,10 +16,33 @@ function getQuotedMessageDisplayText(quote) {
     return text || '(无内容)';
 }
 
+function getMessageDisplayCopyText(msg) {
+    if (!msg) return '';
+    if (msg.isSystemNotice) return String(msg.text || '').trim();
+    if (msg.paymentType === 'redPacket') {
+        const greeting = msg.greeting || '恭喜发财';
+        return `[红包] ${greeting} ¥${Number(msg.amount || 0).toFixed(2)}`;
+    }
+    if (msg.paymentType === 'transfer') {
+        const note = msg.note || '转账';
+        return `[转账] ${note} ¥${Number(msg.amount || 0).toFixed(2)}`;
+    }
+    return String(msg.text || '').trim();
+}
+
 function getMockVoiceDurationSeconds(text) {
     const content = (text || '').trim();
     if (!content) return 1;
     return Math.max(1, Math.min(60, Math.ceil(content.length / 3)));
+}
+
+function renderVoiceWaveMarkup(durationSeconds) {
+    const seconds = Math.max(1, Number(durationSeconds) || 1);
+    const barCount = Math.max(10, Math.min(18, 8 + seconds));
+    const pattern = [5, 10, 7, 14, 9, 15, 11, 6, 13, 8, 12, 7, 10, 14, 6, 11, 9, 13];
+    const bars = Array.from({ length: barCount }, (_, i) => pattern[i % pattern.length]);
+    const inner = bars.map(h => `<i class="voice-wave-bar" style="height:${h}px"></i>`).join('');
+    return `<span class="voice-wave" aria-hidden="true">${inner}</span>`;
 }
 
 function isVisionCapableModel(modelName) {

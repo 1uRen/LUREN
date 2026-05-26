@@ -221,11 +221,17 @@
 
     window.addEventListener('pageshow', function () {
         scheduleLayoutRefresh();
+        if (typeof sweepAllChatsExpiredPayments === 'function') {
+            sweepAllChatsExpiredPayments();
+        }
     });
 
     document.addEventListener('visibilitychange', function () {
         if (document.visibilityState === 'visible') {
             scheduleLayoutRefresh();
+            if (typeof sweepAllChatsExpiredPayments === 'function') {
+                sweepAllChatsExpiredPayments();
+            }
         } else {
             root.style.setProperty('--keyboard-offset', '0px');
             delete root.dataset.input;

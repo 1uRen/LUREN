@@ -221,6 +221,44 @@ function renderChatInterface() {
                         ).join('')
                         : '';
                     const mergedCount = viewMsg.forwardRecord?.items?.length || 0;
+                    if (viewMsg.isSystemNotice) {
+                        const noticeHtml = typeof escapePayHtml === 'function' ? escapePayHtml(viewMsg.text) : viewMsg.text;
+                        return `
+                        <div class="message-item message-item-system ${state.messageSelectMode && state.selectedMessages.includes(index) ? 'selected' : ''}"
+                            data-message-index="${index}"
+                            onclick="onMessageItemClick(${index})"
+                            oncontextmenu="showMessageContextMenu(event, ${index})"
+                            onmousedown="startMessageLongPress(event, ${index})"
+                            onmouseup="cancelMessageLongPress()"
+                            onmouseleave="cancelMessageLongPress()"
+                            ontouchstart="startMessageLongPress(event, ${index})"
+                            ontouchend="cancelMessageLongPress()">
+                            <div class="message-system-notice-wrap">
+                                <div class="message-system-notice">${noticeHtml}</div>
+                            </div>
+                            ${state.messageSelectMode ? `<div class="message-check ${state.selectedMessages.includes(index) ? 'checked' : ''}">${state.selectedMessages.includes(index) ? '✓' : ''}</div>` : ''}
+                        </div>`;
+                    }
+                    if (viewMsg.paymentType && typeof renderPaymentCard === 'function') {
+                        const payCardHtml = renderPaymentCard(viewMsg, index);
+                        return `
+                    <div class="message-item ${viewMsg.isMine ? 'mine' : ''} ${((viewMsg.isMine ? showUserAvatar : showRoleAvatar)) ? '' : 'no-avatar'} ${state.messageSelectMode && state.selectedMessages.includes(index) ? 'selected' : ''}"
+                        data-message-index="${index}"
+                        onclick="onMessageItemClick(${index})"
+                        oncontextmenu="showMessageContextMenu(event, ${index})"
+                        onmousedown="startMessageLongPress(event, ${index})"
+                        onmouseup="cancelMessageLongPress()"
+                        onmouseleave="cancelMessageLongPress()"
+                        ontouchstart="startMessageLongPress(event, ${index})"
+                        ontouchend="cancelMessageLongPress()">
+                        ${(viewMsg.isMine ? showUserAvatar : showRoleAvatar) ? `<img class="message-avatar" src="${viewMsg.isMine ? (state.currentUser?.avatar || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23ffffff%22/%3E%3C/svg%3E') : (contact.avatar || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23ffffff%22/%3E%3C/svg%3E')}">` : ''}
+                        <div class="message-bubble message-bubble-payment">
+                            ${payCardHtml}
+                        </div>
+                        ${shouldShowTimestamp(index) ? `<div class="message-time message-time-inline">${viewMsg.time}</div>` : ''}
+                        ${state.messageSelectMode ? `<div class="message-check ${state.selectedMessages.includes(index) ? 'checked' : ''}">${state.selectedMessages.includes(index) ? '✓' : ''}</div>` : ''}
+                    </div>`;
+                    }
                     return `
                     <div class="message-item ${viewMsg.isMine ? 'mine' : ''} ${viewMsg.withdrawn ? 'withdrawn-row' : ''} ${((viewMsg.isMine ? showUserAvatar : showRoleAvatar) || viewMsg.withdrawn) ? '' : 'no-avatar'} ${state.messageSelectMode && state.selectedMessages.includes(index) ? 'selected' : ''}"
                         data-message-index="${index}"
@@ -265,7 +303,7 @@ function renderChatInterface() {
                                 ${forwardFromTag}
                                 <div class="message-content message-content-voice" onclick="event.stopPropagation(); toggleMockVoiceText(${index})">
                                     <span class="voice-play-icon">▶</span>
-                                    <span class="voice-wave"></span>
+                                    ${renderVoiceWaveMarkup(getMockVoiceDurationSeconds(viewMsg.text))}
                                     <span class="voice-duration">${getMockVoiceDurationSeconds(viewMsg.text)}"</span>
                                 </div>
                                 ${viewMsg.showVoiceText ? `<div class="voice-transcript">${viewMsg.text}</div>` : ''}
@@ -351,7 +389,7 @@ function renderChatInterface() {
                         placeholder="输入消息或表情描述..."
                         value="${state.chatInputStickerSuggestKeyword || ''}"
                         oncompositionstart="setChatInputComposing(true)"
-                        oncompositionend="setChatInputComposing(false); updateChatInputStickerSuggest(this.value, this.selectionStart, this.selectionEnd, true)"
+                        oncompositionend="handleChatInputCompositionEnd(this)"
                         oninput="handleChatInputChange(this.value, this.selectionStart, this.selectionEnd, (typeof event !== 'undefined' && event && event.isComposing))"
                         onkeyup="handleChatInputKeyup(this.value, this.selectionStart, this.selectionEnd, (typeof event !== 'undefined' && event ? event.keyCode : 0), (typeof event !== 'undefined' && event && event.isComposing))"
                         onkeydown="handleChatInputKeydown(event)"
@@ -373,6 +411,8 @@ function renderChatInterface() {
                 ${renderPlusPanel()}
             `}
             ${renderMessageContextMenu()}
+            ${typeof renderRedPacketOpenOverlay === 'function' ? renderRedPacketOpenOverlay() : ''}
+            ${typeof renderTransferDetailOverlay === 'function' ? renderTransferDetailOverlay() : ''}
         </div>
     `;
 }

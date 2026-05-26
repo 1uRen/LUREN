@@ -1,7 +1,27 @@
 // chat-core module
 let chatScrollRenderToken = 0;
 
+function syncChatInputFromDom() {
+    const input = document.getElementById('chatInput');
+    if (!input || state.chatInputComposing) return;
+    state.chatInputStickerSuggestKeyword = input.value || '';
+    if (Number.isInteger(input.selectionStart)) {
+        state.chatInputSelectionStart = input.selectionStart;
+    }
+    if (Number.isInteger(input.selectionEnd)) {
+        state.chatInputSelectionEnd = input.selectionEnd;
+    }
+}
+
 function initChatApp() {
+    if (state.chatInputComposing) {
+        state.pendingInitChatAppWhileComposing = true;
+        return;
+    }
+    syncChatInputFromDom();
+    if (typeof sweepAllChatsExpiredPayments === 'function') {
+        sweepAllChatsExpiredPayments();
+    }
     const renderToken = ++chatScrollRenderToken;
     const shouldRestoreStickerSearchFocus = !!(state.currentChatContact && state.stickerPanelOpen && state.stickerPanelTab === 'search' && !state.stickerSearchComposing);
     const restoreSelectionStart = state.stickerSearchSelectionStart;

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <script>window.__APP_VERSION__ = 'v0.1.8';</script>
+    <script>window.__APP_VERSION__ = 'v0.1.14';</script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,12 +12,12 @@
     <meta name="msapplication-tap-highlight" content="no">
     <link rel="manifest" href="./manifest.webmanifest">
     <meta name="theme-color" content="#FAF6EB">
-    <link rel="stylesheet" href="./viewport.css?v=0.1.7">
-    <script src="./device-runtime.js?v=0.1.7"></script>
-    <link rel="stylesheet" href="./chat-base.css?v=0.1.7">
-    <link rel="stylesheet" href="./chat-components.css?v=0.1.7">
-    <link rel="stylesheet" href="./chat-search.css?v=0.1.7">
-    <link rel="stylesheet" href="./chat-theme.css?v=0.1.7">
+    <link rel="stylesheet" href="./viewport.css?v=0.1.13">
+    <script src="./device-runtime.js?v=0.1.13"></script>
+    <link rel="stylesheet" href="./chat-base.css?v=0.1.13">
+    <link rel="stylesheet" href="./chat-components.css?v=0.1.13">
+    <link rel="stylesheet" href="./chat-search.css?v=0.1.13">
+    <link rel="stylesheet" href="./chat-theme.css?v=0.1.13">
     <title>小手机聊天</title>
     <style>
         * {
@@ -292,23 +292,23 @@
         <div class="icons-section">
             <div class="icons-grid">
                 <div class="app-icon" onclick="handleClick('CHAT')">
-                    <img src="https://s41.ax1x.com/2026/05/18/pexiA4U.png" alt="CHAT">
+                    <img src="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/Communication/chat-3-line.svg" alt="CHAT">
                     <span class="app-name">CHAT</span>
                 </div>
                 <div class="app-icon" onclick="handleClick('世界书')">
-                    <img src="https://s41.ax1x.com/2026/05/18/pexiFEV.png" alt="世界书">
+                    <img src="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/Document/book-2-line.svg" alt="世界书">
                     <span class="app-name">世界书</span>
                 </div>
                 <div class="app-icon" onclick="handleClick('美化')">
-                    <img src="https://s41.ax1x.com/2026/05/18/pexikNT.png" alt="美化">
+                    <img src="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/Design/brush-ai-line.svg" alt="美化">
                     <span class="app-name">美化</span>
                 </div>
                 <div class="app-icon" onclick="handleClick('设置')">
-                    <img src="https://s41.ax1x.com/2026/05/18/pexiSjs.png" alt="设置">
+                    <img src="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/System/settings-3-line.svg" alt="设置">
                     <span class="app-name">设置</span>
                 </div>
                 <div class="app-icon" onclick="handleClick('购物')">
-                    <img src="https://s41.ax1x.com/2026/05/18/pexPzcj.png" alt="购物">
+                    <img src="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/Finance/shopping-bag-line.svg" alt="购物">
                     <span class="app-name">购物</span>
                 </div>
                 <div class="app-icon" onclick="handleClick('ShopSync')">
@@ -320,7 +320,7 @@
                     <span class="app-name">char工位</span>
                 </div>
                 <div class="app-icon" onclick="handleClick('论坛')">
-                    <img src="https://s41.ax1x.com/2026/05/18/pexiCBq.png" alt="论坛">
+                    <img src="https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/Communication/discuss-line.svg" alt="论坛">
                     <span class="app-name">论坛</span>
                 </div>
             </div>
@@ -344,36 +344,38 @@
     </div>
 
     <input type="file" id="fileInput" accept="image/*">
-    <script src="storage.js?v=0.1.7"></script>
-    <script src="api.js?v=0.1.7"></script>
-    <script src="chat-ai.js?v=0.1.7"></script>
-    <script src="chat-state.js?v=0.1.7"></script>
-    <script src="chat-utils.js?v=0.1.8"></script>
-    <script src="chat-stickers.js?v=0.1.7"></script>
-    <script src="chat-messages.js?v=0.1.7"></script>
-    <script src="chat-ai-send.js?v=0.1.7"></script>
-    <script src="chat-contacts.js?v=0.1.7"></script>
-    <script src="chat-friends.js?v=0.1.7"></script>
-    <script src="chat-profile.js?v=0.1.7"></script>
-    <script src="chat-chat-list.js?v=0.1.7"></script>
-    <script src="chat-plus.js?v=0.1.7"></script>
-    <script src="chat-sidebar.js?v=0.1.7"></script>
-    <script src="chat-settings.js?v=0.1.7"></script>
-    <script src="chat-core.js?v=0.1.8"></script>
-    <script src="chat-render-sidebar.js?v=0.1.7"></script>
-    <script src="chat-render-contacts.js?v=0.1.7"></script>
-    <script src="chat-render-chat.js?v=0.1.7"></script>
-    <script src="chat-render-profile.js?v=0.1.7"></script>
-    <script src="chat-render-modals.js?v=0.1.7"></script>
-    <script src="chat-render-search.js?v=0.1.7"></script>
-    <script src="chat-render-core.js?v=0.1.7"></script>
-    <script src="chat-search.js?v=0.1.7"></script>
-    <script src="chat-forward.js?v=0.1.7"></script>
-    <script src="chat-selection.js?v=0.1.7"></script>
-    <script src="chat-wallet.js?v=0.1.7"></script>
-    <script src="chat-render-wallet.js?v=0.1.7"></script>
-    <script src="chat.js?v=0.1.7"></script>
-    <script src="setting.js?v=0.1.7"></script>
+    <script src="storage.js?v=0.1.13"></script>
+    <script src="api.js?v=0.1.13"></script>
+    <script src="chat-ai.js?v=0.1.13"></script>
+    <script src="chat-state.js?v=0.1.13"></script>
+    <script src="chat-wallet-pay.js?v=0.1.13"></script>
+    <script src="chat-utils.js?v=0.1.13"></script>
+    <script src="chat-stickers.js?v=0.1.13"></script>
+    <script src="chat-messages.js?v=0.1.13"></script>
+    <script src="chat-ai-send.js?v=0.1.13"></script>
+    <script src="chat-contacts.js?v=0.1.13"></script>
+    <script src="chat-friends.js?v=0.1.13"></script>
+    <script src="chat-profile.js?v=0.1.13"></script>
+    <script src="chat-chat-list.js?v=0.1.13"></script>
+    <script src="chat-plus.js?v=0.1.13"></script>
+    <script src="chat-sidebar.js?v=0.1.13"></script>
+    <script src="chat-settings.js?v=0.1.13"></script>
+    <script src="chat-core.js?v=0.1.13"></script>
+    <script src="chat-render-sidebar.js?v=0.1.13"></script>
+    <script src="chat-render-contacts.js?v=0.1.13"></script>
+    <script src="chat-render-pay.js?v=0.1.13"></script>
+    <script src="chat-render-chat.js?v=0.1.13"></script>
+    <script src="chat-render-profile.js?v=0.1.13"></script>
+    <script src="chat-render-modals.js?v=0.1.13"></script>
+    <script src="chat-render-search.js?v=0.1.13"></script>
+    <script src="chat-render-core.js?v=0.1.13"></script>
+    <script src="chat-search.js?v=0.1.13"></script>
+    <script src="chat-forward.js?v=0.1.13"></script>
+    <script src="chat-selection.js?v=0.1.13"></script>
+    <script src="chat-wallet.js?v=0.1.13"></script>
+    <script src="chat-render-wallet.js?v=0.1.13"></script>
+    <script src="chat.js?v=0.1.13"></script>
+    <script src="setting.js?v=0.1.13"></script>
 
     <script>
         const DEFAULT_BANNER_URL = 'https://img.heliar.top/file/1779037227279_IMG_20260227_000534.jpg';

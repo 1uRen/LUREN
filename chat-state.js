@@ -99,6 +99,7 @@ const state = {
     chatInputSelectionStart: null,
     chatInputSelectionEnd: null,
     chatInputComposing: false,
+    pendingInitChatAppWhileComposing: false,
     autoScrollNext: false,
     contextMenu: {
         show: false,
@@ -126,14 +127,23 @@ const state = {
     groupChats: [],
     plusPanelOpen: false,
     showForwardModal: false,
-    forwardMode: 'single',
+    forwardMode: 'merge',
     forwardTargetContactId: null,
     viewingForwardRecord: null,
     walletOpen: false,
     walletBalance: 100,
     walletLastCollectDate: null,
     walletShowRewardAnimation: false,
-    walletCurrentReward: 0
+    walletCurrentReward: 0,
+    showRedPacketModal: false,
+    payDraftAmount: '',
+    payDraftGreeting: '',
+    transferPageOpen: false,
+    transferDraftAmount: '',
+    transferDraftNote: '',
+    transferDetailId: null,
+    redPacketOpenId: null,
+    redPacketAnimPhase: null
 };
 
 const LIKE_ICON_OUTLINE = 'https://img.heliar.top/file/1779414610160_thumb-up-line.svg';
@@ -231,6 +241,9 @@ function loadStateFromStorage() {
     ensureStickerDefaults();
     state.currentUser = state.users[0];
     repairChatMessageStickers();
+    if (typeof sweepAllChatsExpiredPayments === 'function') {
+        sweepAllChatsExpiredPayments();
+    }
     if (usersMigrated) {
         saveStateToStorage();
     }
@@ -251,6 +264,9 @@ function getChatListPreviewText(chat) {
     if (!Array.isArray(msgs) || !msgs.length) return '';
     const last = msgs[msgs.length - 1];
     if (!last) return '';
+    if (last.isSystemNotice) return last.text || '';
+    if (last.paymentType === 'redPacket') return '[红包]';
+    if (last.paymentType === 'transfer') return '[转账]';
     if (last.isSticker) return '[表情]';
     if (last.isForwardMerged) return '[聊天记录]';
     return last.text || '';

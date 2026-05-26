@@ -1,4 +1,4 @@
-const CACHE_NAME = "xiaoshouji-pwa-v19";
+const CACHE_NAME = "xiaoshouji-pwa-v25";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -40,6 +40,8 @@ const CORE_ASSETS = [
   "./chat-stickers.js",
   "./chat-utils.js",
   "./chat-wallet.js",
+  "./chat-wallet-pay.js",
+  "./chat-render-pay.js",
   "./split-chat.js",
   "./split-chat-render.js"
 ];

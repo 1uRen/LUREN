@@ -49,13 +49,15 @@ function handleVideoCall() {
 }
 
 function handleRedPacket() {
-    closePlusPanel();
-    alert('红包功能开发中');
+    if (typeof openRedPacketModal === 'function') {
+        openRedPacketModal();
+    }
 }
 
 function handleTransfer() {
-    closePlusPanel();
-    alert('转账功能开发中');
+    if (typeof openTransferPage === 'function') {
+        openTransferPage();
+    }
 }
 
 function handleFavorite() {

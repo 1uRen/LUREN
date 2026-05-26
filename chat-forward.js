@@ -75,6 +75,37 @@ function getForwardAuthorName(msg, sourceContact) {
 
 function cloneMessageSnapshot(msg, sourceContact, depth = 0) {
     if (!msg || msg.withdrawn) return null;
+
+    if (msg.isSystemNotice) {
+        return {
+            isSystemNotice: true,
+            text: msg.text || '',
+            time: msg.time || '',
+            isMine: false,
+            author: '系统'
+        };
+    }
+
+    if (msg.paymentType) {
+        return {
+            author: getForwardAuthorName(msg, sourceContact),
+            isMine: !!msg.isMine,
+            time: msg.time || '',
+            text: msg.text || (msg.paymentType === 'redPacket' ? '[红包]' : '[转账]'),
+            paymentType: msg.paymentType,
+            paymentId: msg.paymentId,
+            amount: msg.amount,
+            greeting: msg.greeting,
+            note: msg.note,
+            status: msg.status,
+            refunded: !!msg.refunded,
+            isRefundTransfer: !!msg.isRefundTransfer,
+            claimedAt: msg.claimedAt,
+            createdAt: msg.createdAt,
+            expiresAt: msg.expiresAt,
+            redPacketVariant: msg.redPacketVariant
+        };
+    }
     
     // 最多支持两层嵌套的聊天记录
     if (depth > 1 && msg.isForwardMerged) {
@@ -116,8 +147,7 @@ function cloneMessageSnapshot(msg, sourceContact, depth = 0) {
 }
 
 function buildSingleForwardMessage(snapshot, sourceContact) {
-    // 逐条转发直接保留消息格式，不添加"来自XXX"
-    return {
+    const base = {
         text: snapshot.text || '',
         time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }),
         isMine: true,
@@ -134,6 +164,33 @@ function buildSingleForwardMessage(snapshot, sourceContact) {
         isForwardMerged: snapshot.isForwardMerged,
         forwardRecord: snapshot.forwardRecord
     };
+    if (snapshot.isSystemNotice) {
+        return {
+            isSystemNotice: true,
+            text: snapshot.text || '',
+            time: base.time,
+            isMine: false
+        };
+    }
+    if (snapshot.paymentType) {
+        return {
+            ...base,
+            isMine: !!snapshot.isMine,
+            paymentType: snapshot.paymentType,
+            paymentId: snapshot.paymentId || (typeof createPaymentId === 'function' ? createPaymentId() : `pay_fwd_${Date.now()}`),
+            amount: snapshot.amount,
+            greeting: snapshot.greeting,
+            note: snapshot.note,
+            status: snapshot.status || 'claimed',
+            refunded: !!snapshot.refunded,
+            isRefundTransfer: !!snapshot.isRefundTransfer,
+            claimedAt: snapshot.claimedAt,
+            createdAt: snapshot.createdAt || Date.now(),
+            expiresAt: snapshot.expiresAt,
+            redPacketVariant: snapshot.redPacketVariant
+        };
+    }
+    return base;
 }
 
 function buildMergedForwardMessage(snapshots, sourceContact) {

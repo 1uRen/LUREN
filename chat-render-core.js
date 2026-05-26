@@ -1,6 +1,7 @@
 // chat-render-core module
 function shouldHideMainNav() {
     if (state.walletOpen) return false;
+    if (state.transferPageOpen) return false;
     if (state.viewingForwardRecord) return true;
     if (state.showSignatureHistory) return true;
     if (state.currentProfileContact) return true;
@@ -12,11 +13,15 @@ function shouldHideMainNav() {
 }
 
 function renderChatApp() {
-    const showTabBar = !shouldHideMainNav() && !state.walletOpen;
+    const showTabBar = !shouldHideMainNav() && !state.walletOpen && !state.transferPageOpen;
+    const mainContentClass = [
+        showTabBar ? 'with-tab-bar' : '',
+        state.transferPageOpen ? 'transfer-page-active' : ''
+    ].filter(Boolean).join(' ');
     return `
         <div class="chat-app">
             ${renderSidebar()}
-            <div class="main-content${showTabBar ? ' with-tab-bar' : ''}">
+            <div class="main-content${mainContentClass ? ` ${mainContentClass}` : ''}">
                 ${renderHeader()}
                 ${renderContent()}
                 ${renderBottomNav()}
@@ -40,6 +45,15 @@ function renderHeader() {
             </div>
         `;
     }
+    if (state.transferPageOpen) {
+        return `
+            <div class="chat-header">
+                <button type="button" class="back-btn" aria-label="返回" onclick="closeTransferPage()">←</button>
+                <div class="header-title">向好友转账</div>
+                <div></div>
+            </div>
+        `;
+    }
     const title = state.currentPage === 'messages' ? '消息' : state.currentPage === 'contacts' ? '联系人' : '动态';
     return `
         <div class="chat-header">
@@ -53,6 +67,9 @@ function renderHeader() {
 function renderContent() {
     if (state.walletOpen) {
         return renderWalletPage();
+    }
+    if (state.transferPageOpen) {
+        return typeof renderTransferPage === 'function' ? renderTransferPage() : '';
     }
     if (state.viewingForwardRecord) {
         return renderForwardRecordPage();
@@ -209,7 +226,7 @@ function renderForwardRecordPage() {
             bubbleContent = `
                 <div class="message-content message-content-voice" onclick="event.stopPropagation(); toggleMockVoiceTextForward(${itemIndex})">
                     <span class="voice-play-icon">▶</span>
-                    <span class="voice-wave"></span>
+                    ${renderVoiceWaveMarkup(getMockVoiceDurationSeconds(item.text))}
                     <span class="voice-duration">${getMockVoiceDurationSeconds(item.text)}"</span>
                 </div>
             `;
@@ -269,8 +286,8 @@ function renderBottomNav() {
         ? 'https://img.heliar.top/file/1779413261492_star-smile-fill.svg'
         : 'https://img.heliar.top/file/1779413265219_star-smile-line.svg';
     
-    // 子页面与钱包页不显示底部导航
-    if (shouldHideMainNav() || state.walletOpen) {
+    // 子页面、钱包页、转账页不显示底部导航
+    if (shouldHideMainNav() || state.walletOpen || state.transferPageOpen) {
         return '';
     }
     
