@@ -163,6 +163,15 @@
         }
     }
 
+    function measureChatComposerHeight() {
+        var composer = document.querySelector('.chat-composer');
+        if (!composer) return;
+        var h = Math.ceil(composer.getBoundingClientRect().height);
+        if (h > 0) {
+            root.style.setProperty('--chat-composer-height', h + 'px');
+        }
+    }
+
     function scrollChatToBottom() {
         var chatMessages = document.querySelector('.chat-fullscreen .chat-messages');
         if (chatMessages) {
@@ -172,25 +181,48 @@
         }
     }
 
-    function applyKeyboardOffset() {
+    function computeKeyboardOffset() {
         var vv = window.visualViewport;
-        var offset = 0;
+        if (!vv) return 0;
+        var layoutH = document.documentElement.clientHeight || window.innerHeight;
+        var offset = Math.max(0, layoutH - vv.height - (vv.offsetTop || 0));
+        var maxOffset = Math.max(KB_THRESHOLD, layoutH * 0.52);
+        return Math.min(offset, maxOffset);
+    }
 
-        if (vv) {
-            offset = Math.max(
-                0,
-                window.innerHeight - vv.height - (vv.offsetTop || 0)
-            );
-        }
+    function applyKeyboardOffset() {
+        measureChatComposerHeight();
+        var offset = computeKeyboardOffset();
+        var prev = parseFloat(root.style.getPropertyValue('--keyboard-offset')) || 0;
+        var open = offset > KB_THRESHOLD;
 
         root.style.setProperty('--keyboard-offset', offset + 'px');
 
-        if (offset > KB_THRESHOLD) {
+        if (open) {
             root.dataset.input = 'keyboard-open';
-            scrollChatToBottom();
+            if (Math.abs(offset - prev) < 3) {
+                root.classList.add('keyboard-offset-ready');
+            }
         } else {
             delete root.dataset.input;
+            root.classList.remove('keyboard-offset-ready');
+            root.style.setProperty('--keyboard-offset', '0px');
         }
+    }
+
+    function settleKeyboardAfterFocus() {
+        applyKeyboardOffset();
+        requestAnimationFrame(function () {
+            applyKeyboardOffset();
+            requestAnimationFrame(function () {
+                applyKeyboardOffset();
+                measureChatComposerHeight();
+                root.classList.add('keyboard-offset-ready');
+                if (root.dataset.input === 'keyboard-open') {
+                    scrollChatToBottom();
+                }
+            });
+        });
     }
 
     function debounce(fn, wait) {
@@ -248,14 +280,19 @@
     document.addEventListener('focusin', function (e) {
         var tag = e.target && e.target.tagName;
         if (tag === 'INPUT' || tag === 'TEXTAREA') {
-            setTimeout(function () {
-                applyKeyboardOffset();
-                scrollChatToBottom();
-            }, 300);
+            root.classList.remove('keyboard-offset-ready');
+            settleKeyboardAfterFocus();
         }
     });
 
-    document.addEventListener('focusout', function () {
-        setTimeout(applyKeyboardOffset, 100);
+    document.addEventListener('focusout', function (e) {
+        var tag = e.target && e.target.tagName;
+        if (tag !== 'INPUT' && tag !== 'TEXTAREA') return;
+        setTimeout(function () {
+            root.classList.remove('keyboard-offset-ready');
+            applyKeyboardOffset();
+        }, 120);
     });
+
+    window.measureChatComposerHeight = measureChatComposerHeight;
 })();

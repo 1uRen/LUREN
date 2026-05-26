@@ -205,14 +205,37 @@ body.mode-settings .settings-app {
     box-sizing: border-box;
 }
 
+.chat-composer {
+    flex-shrink: 0;
+    z-index: 30;
+    background: #F0E8D4;
+    box-sizing: border-box;
+}
+
+html[data-input="keyboard-open"] .chat-composer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: var(--keyboard-offset, 0px);
+    z-index: 200;
+    width: 100%;
+    max-width: 100%;
+}
+
+html.keyboard-offset-ready[data-input="keyboard-open"] .chat-composer {
+    transition: bottom 0.2s ease-out;
+}
+
 .chat-fullscreen .chat-input-stack {
     padding-bottom: 0;
-    transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
-    transition: transform 0.15s ease-out;
 }
 
 .chat-fullscreen .chat-messages {
-    scroll-padding-bottom: calc(120px + var(--safe-bottom) + var(--keyboard-offset, 0px));
+    scroll-padding-bottom: calc(var(--chat-composer-height, 132px) + var(--safe-bottom) + 16px);
+}
+
+html[data-input="keyboard-open"] .chat-fullscreen .chat-messages {
+    padding-bottom: calc(var(--chat-composer-height, 132px) + var(--keyboard-offset, 0px) + 8px);
 }
 
 /* 底部仅工具栏吸收安全区，避免与 input-stack 重复留白 */
@@ -220,8 +243,11 @@ body.mode-settings .settings-app {
 .chat-fullscreen .sticker-sheet-tabs,
 .chat-fullscreen .message-select-bar {
     padding-bottom: max(8px, var(--safe-bottom));
-    transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
-    transition: transform 0.15s ease-out, padding-bottom 0.15s ease-out;
+}
+
+html[data-input="keyboard-open"] .chat-composer .chat-tools-bar,
+html[data-input="keyboard-open"] .chat-composer .sticker-sheet-tabs {
+    padding-bottom: max(8px, var(--safe-bottom));
 }
 
 @media (max-height: 500px) and (orientation: landscape) {

@@ -49,6 +49,9 @@ function initChatApp() {
     if (typeof bindForwardModalListeners === 'function') {
         bindForwardModalListeners();
     }
+    if (state.currentChatContact && typeof measureChatComposerHeight === 'function') {
+        requestAnimationFrame(measureChatComposerHeight);
+    }
 
     if (shouldRestoreMessageSearchFocus) {
         const input = document.getElementById('messageSearchInput');
@@ -108,7 +111,8 @@ function initChatApp() {
             if (shouldRestoreChatInputFocus && !state.viewingForwardRecord) {
                 const chatInput = document.getElementById('chatInput');
                 if (chatInput) {
-                    if (document.activeElement !== chatInput) {
+                    const alreadyFocused = document.activeElement === chatInput;
+                    if (!alreadyFocused) {
                         chatInput.focus({ preventScroll: true });
                     }
                     if (Number.isInteger(restoreChatInputSelectionStart) && Number.isInteger(restoreChatInputSelectionEnd)) {

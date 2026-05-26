@@ -371,6 +371,7 @@ function renderChatInterface() {
                     </div>
                 </div>
             ` : `
+                <div class="chat-composer">
                 <div class="chat-input-stack">
                 ${state.replyingQuote ? `
                     <div class="replying-quote-bar">
@@ -409,6 +410,7 @@ function renderChatInterface() {
                 ${renderStickerPanel()}
                 ${renderStickerManagerModal()}
                 ${renderPlusPanel()}
+                </div>
             `}
             ${renderMessageContextMenu()}
             ${typeof renderRedPacketOpenOverlay === 'function' ? renderRedPacketOpenOverlay() : ''}
