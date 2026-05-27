@@ -1,4 +1,4 @@
-const CACHE_NAME = "xiaoshouji-pwa-v31";
+const CACHE_NAME = "xiaoshouji-pwa-v32";
 
 function isAppShellRequest(request) {
   if (request.method !== "GET") return false;

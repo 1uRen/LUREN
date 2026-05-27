@@ -332,22 +332,26 @@ html[data-os="ios"] body.mode-settings {
     min-height: -webkit-fill-available;
 }
 
-/* env() 冷启动为 0 时的底部补色回退 */
-html[data-os="ios"] body::after {
+/* 主屏：固定壁纸层铺满整屏（含 Home Indicator 区域） */
+html[data-os="ios"] body.mode-home::before {
     content: '';
     position: fixed;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    height: var(--safe-bottom-effective);
-    background: var(--ios-bottom-fill);
-    pointer-events: none;
     z-index: 0;
+    pointer-events: none;
+    background: var(--home-wallpaper) center center / cover no-repeat;
+    background-color: #e8e4dc;
+}
+
+html[data-os="ios"] body.mode-home::after {
+    display: none;
 }
 
 html[data-os="ios"] body.mode-home {
-    background: var(--home-wallpaper) center / cover no-repeat scroll;
-    background-color: #e8e4dc;
+    background: transparent;
     box-sizing: border-box;
 }
 
@@ -359,12 +363,33 @@ html[data-os="ios"] body.mode-home .iphone-container {
     z-index: 1;
 }
 
+/* 聊天列表：壳层与 Tab 同色，去掉 Tab 下方米色条 */
 html[data-os="ios"] body.mode-chat {
-    background-color: var(--app-bg);
+    background-color: var(--tab-bar-bg);
+}
+
+html[data-os="ios"] body.mode-chat::after {
+    display: none;
 }
 
 html[data-os="ios"] body.mode-settings {
     background-color: #f5f5f7;
+}
+
+html[data-os="ios"] body.mode-settings::after {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--safe-bottom-effective);
+    background: #f5f5f7;
+    pointer-events: none;
+    z-index: 0;
+}
+
+html[data-os="ios"] body.mode-home .icons-section {
+    padding-bottom: calc(12px + var(--safe-bottom-effective));
 }
 
 html[data-os="ios"] body.mode-chat .iphone-container,
@@ -377,22 +402,36 @@ html[data-os="ios"] .settings-app {
     z-index: 1;
 }
 
-/* Tab 栏贴底 + 背景延伸进 Home Indicator */
+/* Tab 栏贴物理底：图标在上，#F0E8D4 向下铺满（吃掉原淡黄/米色条） */
 html[data-os="ios"] .bottom-nav {
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: 90;
-    min-height: calc(var(--tab-bar-inner) + var(--safe-bottom-effective));
-    padding: 6px 8px var(--safe-bottom-effective);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
     box-sizing: border-box;
+    min-height: calc(var(--tab-bar-inner) + var(--safe-bottom-effective));
+    height: calc(var(--tab-bar-inner) + var(--safe-bottom-effective));
+    padding: 8px 8px 0;
+    padding-bottom: var(--safe-bottom-effective);
     background: var(--tab-bar-bg);
+    border-top: 1px solid #e5e5e5;
+}
+
+html[data-os="ios"] .bottom-nav .nav-item {
+    padding-top: 2px;
 }
 
 html[data-os="ios"] .main-content.with-tab-bar,
 html[data-os="ios"] .main-content:has(.bottom-nav) {
-    padding-bottom: var(--tab-bar-total);
+    padding-bottom: calc(var(--tab-bar-inner) + var(--safe-bottom-effective));
+}
+
+html[data-os="ios"] .chat-app {
+    background-color: var(--app-bg);
 }
 
 /* iOS 不用 transform 抬升（layout-resize / visual-fixed 均如此） */

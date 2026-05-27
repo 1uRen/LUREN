@@ -115,12 +115,16 @@
             fill = (plus || sticker) ? '#fff9ef' : '#F0E8D4';
         } else if (document.querySelector('.bottom-nav')) {
             fill = '#F0E8D4';
+            root.style.setProperty('--ios-tab-shell-bg', '#F0E8D4');
         } else if (document.querySelector('.wallet-page')) {
             fill = '#f5f5f7';
         } else if (document.querySelector('.profile-page')) {
             fill = '#FAF6EB';
         }
         root.style.setProperty('--ios-bottom-fill', fill);
+        if (!document.querySelector('.bottom-nav')) {
+            root.style.removeProperty('--ios-tab-shell-bg');
+        }
         var themeMeta = document.querySelector('meta[name="theme-color"]');
         if (themeMeta && body.classList.contains('mode-home')) {
             themeMeta.setAttribute('content', '#e8e4dc');
