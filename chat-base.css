@@ -1029,5 +1029,22 @@ input, textarea {
     appearance: none !important;
 }
 
-/* 键盘偏移由 viewport.css + device-runtime.js 控制（transform，非 fixed） */
+/* 键盘偏移由 viewport.css + device-runtime.js 控制 */
+
+/* iOS：全屏浮层底部 safe-area 背景延伸 */
+html[data-os="ios"] .profile-page,
+html[data-os="ios"] .signature-history-page,
+html[data-os="ios"] .group-manager-page {
+    padding-bottom: var(--safe-bottom-effective);
+    box-sizing: border-box;
+}
+
+html[data-os="ios"] .transfer-detail-page {
+    padding-bottom: var(--safe-bottom-effective);
+    box-sizing: border-box;
+}
+
+html[data-os="ios"] .wallet-page {
+    padding-bottom: var(--safe-bottom-effective);
+}
 

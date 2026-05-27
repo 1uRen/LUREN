@@ -43,6 +43,9 @@ function initSettingsApp() {
     document.body.classList.add('mode-settings');
     container.innerHTML = renderSettingsApp();
     attachSettingsListeners();
+    if (typeof syncIosBottomFill === 'function') {
+        requestAnimationFrame(syncIosBottomFill);
+    }
 }
 
 function renderSettingsApp() {

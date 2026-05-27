@@ -52,6 +52,9 @@ function initChatApp() {
     if (state.currentChatContact && typeof measureChatComposerHeight === 'function') {
         requestAnimationFrame(measureChatComposerHeight);
     }
+    if (typeof syncIosBottomFill === 'function') {
+        requestAnimationFrame(syncIosBottomFill);
+    }
 
     if (shouldRestoreMessageSearchFocus) {
         const input = document.getElementById('messageSearchInput');
