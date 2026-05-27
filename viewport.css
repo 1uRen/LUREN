@@ -12,9 +12,10 @@
     --safe-top-effective: max(var(--safe-top, 0px), env(safe-area-inset-top, 0px));
     --safe-bottom-effective: max(var(--safe-bottom, 0px), env(safe-area-inset-bottom, 0px));
     --keyboard-offset: 0px;
+    --input-accessory-inset: 0px;
     --header-pad-y: 10px;
     --tab-bar-inner: 48px;
-    --tab-bar-total: calc(var(--tab-bar-inner) + var(--safe-bottom));
+    --tab-bar-total: calc(var(--tab-bar-inner) + var(--safe-bottom-effective));
     --home-wallpaper: url('https://img.heliar.top/file/1779038914728_IMG_20260518_012229_edit_3883979776694321.png');
     --home-time-size: clamp(3.5rem, 12vw, 6rem);
     --home-time-pad-top: 12px;
@@ -28,6 +29,13 @@
     --wallet-balance-size: 36px;
 }
 
+html {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    background-color: var(--tab-bar-bg);
+}
+
 html,
 body {
     width: 100%;
@@ -37,7 +45,23 @@ body {
     min-height: -webkit-fill-available;
     margin: 0;
     overflow: hidden;
+}
+
+body {
     background-color: var(--app-bg);
+}
+
+/* iOS：壳层底色延伸到 Home Indicator 区域，避免底部露白/露黑 */
+html[data-os="ios"] body.mode-chat {
+    background-color: var(--tab-bar-bg);
+}
+
+html[data-os="ios"] body.mode-settings {
+    background-color: #f5f5f7;
+}
+
+html[data-os="ios"] body.mode-home {
+    background-color: #e8e4dc;
 }
 
 body.mode-home,
@@ -70,9 +94,15 @@ body.mode-home .iphone-container {
     position: relative;
 }
 
-/* iOS 主屏幕 PWA：壁纸铺满到底，底部由系统 Home 条处理 */
+/* iOS 主屏幕 PWA：壁纸铺满到底，内容延伸进 Home Indicator 区域 */
 html[data-os="ios"][data-standalone="true"] body.mode-home .iphone-container {
     --home-pad-bottom: 0px;
+}
+
+html[data-os="ios"] body.mode-chat .iphone-container,
+html[data-os="ios"] body.mode-settings .iphone-container {
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
 }
 
 body.mode-home .time-section {
@@ -166,11 +196,11 @@ body.mode-settings .settings-app {
     bottom: 0;
     z-index: 90;
     height: auto;
-    min-height: var(--tab-bar-inner);
+    min-height: var(--tab-bar-total);
     margin-top: 0;
     display: flex;
     align-items: center;
-    padding: 6px 8px max(6px, var(--safe-bottom));
+    padding: 6px 8px var(--safe-bottom-effective);
     box-sizing: border-box;
     background: var(--tab-bar-bg);
     border-top: 1px solid #e5e5e5;
@@ -210,20 +240,26 @@ body.mode-settings .settings-app {
     z-index: 30;
     background: #F0E8D4;
     box-sizing: border-box;
+    will-change: transform;
+    padding-bottom: var(--safe-bottom-effective);
 }
 
-html[data-input="keyboard-open"] .chat-composer {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: var(--keyboard-offset, 0px);
-    z-index: 200;
-    width: 100%;
-    max-width: 100%;
+/* Android 浏览器：布局视口随键盘收缩，仅上抬浏览器密码/自动填充条高度 */
+html[data-keyboard-strategy="layout-resize"][data-input="keyboard-open"] .chat-composer {
+    transform: translateY(calc(-1 * var(--input-accessory-inset, 0px)));
 }
 
-html.keyboard-offset-ready[data-input="keyboard-open"] .chat-composer {
-    transition: bottom 0.2s ease-out;
+html.keyboard-offset-ready[data-keyboard-strategy="layout-resize"][data-input="keyboard-open"] .chat-composer {
+    transition: transform 0.18s ease-out;
+}
+
+/* iOS / 兜底：稳定测量后再整体上移，避免先飞到顶部 */
+html[data-keyboard-strategy="visual-offset"][data-input="keyboard-open"] .chat-composer {
+    transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
+}
+
+html.keyboard-offset-ready[data-keyboard-strategy="visual-offset"][data-input="keyboard-open"] .chat-composer {
+    transition: transform 0.18s ease-out;
 }
 
 .chat-fullscreen .chat-input-stack {
@@ -231,23 +267,35 @@ html.keyboard-offset-ready[data-input="keyboard-open"] .chat-composer {
 }
 
 .chat-fullscreen .chat-messages {
-    scroll-padding-bottom: calc(var(--chat-composer-height, 132px) + var(--safe-bottom) + 16px);
+    scroll-padding-bottom: calc(var(--chat-composer-height, 132px) + var(--safe-bottom-effective) + 16px);
 }
 
-html[data-input="keyboard-open"] .chat-fullscreen .chat-messages {
+html[data-keyboard-strategy="visual-offset"][data-input="keyboard-open"] .chat-fullscreen .chat-messages {
     padding-bottom: calc(var(--chat-composer-height, 132px) + var(--keyboard-offset, 0px) + 8px);
 }
 
-/* 底部仅工具栏吸收安全区，避免与 input-stack 重复留白 */
+html[data-keyboard-strategy="layout-resize"][data-input="keyboard-open"] .chat-fullscreen .chat-messages {
+    padding-bottom: calc(var(--chat-composer-height, 132px) + var(--input-accessory-inset, 0px) + 8px);
+}
+
+/* 安全区由 .chat-composer 统一延伸背景，内部栏不再重复加底 */
 .chat-fullscreen .chat-tools-bar,
-.chat-fullscreen .sticker-sheet-tabs,
+.chat-fullscreen .sticker-sheet-tabs {
+    padding-bottom: 8px;
+}
+
 .chat-fullscreen .message-select-bar {
-    padding-bottom: max(8px, var(--safe-bottom));
+    padding-bottom: max(8px, var(--safe-bottom-effective));
+    background: #F0E8D4;
+}
+
+html[data-input="keyboard-open"] .chat-composer {
+    padding-bottom: var(--safe-bottom-effective);
 }
 
 html[data-input="keyboard-open"] .chat-composer .chat-tools-bar,
 html[data-input="keyboard-open"] .chat-composer .sticker-sheet-tabs {
-    padding-bottom: max(8px, var(--safe-bottom));
+    padding-bottom: 8px;
 }
 
 @media (max-height: 500px) and (orientation: landscape) {

@@ -6,6 +6,9 @@
 
     var root = document.documentElement;
     var KB_THRESHOLD = 80;
+    var ACCESSORY_INSET_ANDROID = 48;
+    var offsetSamples = [];
+    var settleRafId = 0;
 
     function detectOs() {
         var ua = navigator.userAgent || '';
@@ -20,6 +23,14 @@
             window.matchMedia('(display-mode: fullscreen)').matches ||
             navigator.standalone === true
         );
+    }
+
+    function detectKeyboardStrategy() {
+        var os = detectOs();
+        var standalone = isStandalone();
+        if (os === 'android' && !standalone) return 'layout-resize';
+        if (os === 'ios') return 'visual-offset';
+        return 'visual-offset';
     }
 
     function detectTier() {
@@ -49,7 +60,6 @@
 
     function fallbackInsets(os, standalone) {
         if (os === 'ios') {
-            /* PWA 冷启动/后台恢复时 env() 常为 0，需保底避免顶栏进状态栏 */
             return standalone
                 ? { top: 47, right: 0, bottom: 34, left: 0 }
                 : { top: 20, right: 0, bottom: 0, left: 0 };
@@ -110,7 +120,6 @@
         var vvTop = vv && vv.offsetTop > 0 ? vv.offsetTop : 0;
         var top = Math.max(envTop, vvTop);
         if (standalone) {
-            /* 后台恢复后 env 短暂为 0 时仍保留可点区域 */
             if (top < 20) top = 47;
         } else if (top < 20) {
             top = 20;
@@ -128,6 +137,7 @@
         root.dataset.standalone = standalone ? 'true' : 'false';
         root.dataset.tier = tier;
         root.dataset.orientation = landscape ? 'landscape' : 'portrait';
+        root.dataset.keyboardStrategy = detectKeyboardStrategy();
 
         var env = readEnvSafeInsets();
         var fb = fallbackInsets(os, standalone);
@@ -136,18 +146,23 @@
         if (os === 'ios' && !isKeyboardLikelyOpen()) {
             safe.top = resolveIosTopInset(env.top, standalone);
         }
-        if (standalone && os === 'ios') {
+        if (os === 'ios') {
             safe.bottom = Math.max(env.bottom, fb.bottom, safe.bottom);
-            safe.left = env.left > 0 ? env.left : safe.left;
-            safe.right = env.right > 0 ? env.right : safe.right;
+            if (standalone) {
+                safe.left = env.left > 0 ? env.left : safe.left;
+                safe.right = env.right > 0 ? env.right : safe.right;
+            }
         }
 
         root.style.setProperty('--safe-top', safe.top + 'px');
         root.style.setProperty('--safe-right', safe.right + 'px');
         root.style.setProperty('--safe-bottom', safe.bottom + 'px');
         root.style.setProperty('--safe-left', safe.left + 'px');
+        root.style.setProperty(
+            '--safe-bottom-effective',
+            'max(' + safe.bottom + 'px, env(safe-area-inset-bottom, 0px))'
+        );
 
-        /* 主桌面 safe 已在 .iphone-container padding，此处仅额外间距 */
         var homePadExtra = standalone ? 8 : (os === 'ios' ? 12 : 8);
         root.style.setProperty('--home-time-pad-top', homePadExtra + 'px');
 
@@ -181,48 +196,120 @@
         }
     }
 
+    function resetViewportScroll() {
+        if (window.scrollY !== 0 || window.scrollX !== 0) {
+            window.scrollTo(0, 0);
+        }
+    }
+
     function computeKeyboardOffset() {
         var vv = window.visualViewport;
         if (!vv) return 0;
         var layoutH = document.documentElement.clientHeight || window.innerHeight;
         var offset = Math.max(0, layoutH - vv.height - (vv.offsetTop || 0));
-        var maxOffset = Math.max(KB_THRESHOLD, layoutH * 0.52);
-        return Math.min(offset, maxOffset);
+        return offset;
     }
 
-    function applyKeyboardOffset() {
+    function getAccessoryInset(open) {
+        if (!open) return 0;
+        var os = detectOs();
+        if (os === 'android' && !isStandalone()) return ACCESSORY_INSET_ANDROID;
+        return 0;
+    }
+
+    function resetOffsetSamples() {
+        offsetSamples = [];
+    }
+
+    function isOffsetStable(offset) {
+        offsetSamples.push(offset);
+        if (offsetSamples.length > 4) offsetSamples.shift();
+        if (offsetSamples.length < 2) return false;
+        var last = offsetSamples[offsetSamples.length - 1];
+        return offsetSamples.every(function (value) {
+            return Math.abs(value - last) < 6;
+        });
+    }
+
+    function clearKeyboardState() {
+        root.classList.remove('keyboard-offset-ready');
+        delete root.dataset.input;
+        root.style.setProperty('--keyboard-offset', '0px');
+        root.style.setProperty('--input-accessory-inset', '0px');
+    }
+
+    function isTextInputFocused() {
+        var el = document.activeElement;
+        return !!(el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA'));
+    }
+
+    function applyKeyboardOffset(forceStable) {
         measureChatComposerHeight();
+        resetViewportScroll();
+
+        var strategy = root.dataset.keyboardStrategy || detectKeyboardStrategy();
         var offset = computeKeyboardOffset();
-        var prev = parseFloat(root.style.getPropertyValue('--keyboard-offset')) || 0;
-        var open = offset > KB_THRESHOLD;
+        var focused = isTextInputFocused();
+        var open = strategy === 'layout-resize'
+            ? focused && document.body.classList.contains('mode-chat')
+            : offset > KB_THRESHOLD;
+        var accessory = getAccessoryInset(open);
 
-        root.style.setProperty('--keyboard-offset', offset + 'px');
-
-        if (open) {
-            root.dataset.input = 'keyboard-open';
-            if (Math.abs(offset - prev) < 3) {
-                root.classList.add('keyboard-offset-ready');
-            }
-        } else {
-            delete root.dataset.input;
-            root.classList.remove('keyboard-offset-ready');
+        if (strategy === 'layout-resize') {
             root.style.setProperty('--keyboard-offset', '0px');
+            root.style.setProperty('--input-accessory-inset', open ? accessory + 'px' : '0px');
+            if (open) {
+                root.dataset.input = 'keyboard-open';
+                root.classList.add('keyboard-offset-ready');
+            } else {
+                clearKeyboardState();
+            }
+            return;
         }
+
+        if (!open) {
+            resetOffsetSamples();
+            clearKeyboardState();
+            return;
+        }
+
+        var stable = forceStable || isOffsetStable(offset);
+        var totalOffset = offset + accessory;
+        root.style.setProperty('--input-accessory-inset', '0px');
+
+        if (!stable) {
+            root.classList.remove('keyboard-offset-ready');
+            delete root.dataset.input;
+            root.style.setProperty('--keyboard-offset', '0px');
+            return;
+        }
+
+        root.style.setProperty('--keyboard-offset', totalOffset + 'px');
+        root.dataset.input = 'keyboard-open';
+        root.classList.add('keyboard-offset-ready');
     }
 
     function settleKeyboardAfterFocus() {
-        applyKeyboardOffset();
-        requestAnimationFrame(function () {
-            applyKeyboardOffset();
-            requestAnimationFrame(function () {
-                applyKeyboardOffset();
+        if (settleRafId) cancelAnimationFrame(settleRafId);
+        resetOffsetSamples();
+        root.classList.remove('keyboard-offset-ready');
+        resetViewportScroll();
+
+        var frame = 0;
+        function step() {
+            frame += 1;
+            applyKeyboardOffset(frame >= 4);
+            if (frame < 6) {
+                settleRafId = requestAnimationFrame(step);
+            } else {
+                settleRafId = 0;
                 measureChatComposerHeight();
-                root.classList.add('keyboard-offset-ready');
                 if (root.dataset.input === 'keyboard-open') {
                     scrollChatToBottom();
                 }
-            });
-        });
+            }
+        }
+        settleRafId = requestAnimationFrame(step);
     }
 
     function debounce(fn, wait) {
@@ -234,11 +321,13 @@
     }
 
     var debouncedLayout = debounce(applyLayout, 100);
-    var debouncedKeyboard = debounce(applyKeyboardOffset, 50);
+    var debouncedKeyboard = debounce(function () {
+        applyKeyboardOffset(true);
+    }, 50);
 
     function scheduleLayoutRefresh() {
         applyLayout();
-        applyKeyboardOffset();
+        applyKeyboardOffset(true);
         requestAnimationFrame(applyLayout);
         setTimeout(applyLayout, 120);
         setTimeout(applyLayout, 400);
@@ -265,34 +354,41 @@
                 sweepAllChatsExpiredPayments();
             }
         } else {
-            root.style.setProperty('--keyboard-offset', '0px');
-            delete root.dataset.input;
+            resetOffsetSamples();
+            clearKeyboardState();
         }
     });
 
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', debouncedKeyboard);
-        window.visualViewport.addEventListener('scroll', debouncedKeyboard);
+        window.visualViewport.addEventListener('scroll', function () {
+            if (root.dataset.input === 'keyboard-open' || document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) {
+                resetViewportScroll();
+                debouncedKeyboard();
+            }
+        });
     }
 
     window.addEventListener('resize', debouncedKeyboard);
 
     document.addEventListener('focusin', function (e) {
         var tag = e.target && e.target.tagName;
-        if (tag === 'INPUT' || tag === 'TEXTAREA') {
-            root.classList.remove('keyboard-offset-ready');
-            settleKeyboardAfterFocus();
-        }
+        if (tag !== 'INPUT' && tag !== 'TEXTAREA') return;
+        resetViewportScroll();
+        root.classList.remove('keyboard-offset-ready');
+        settleKeyboardAfterFocus();
     });
 
     document.addEventListener('focusout', function (e) {
         var tag = e.target && e.target.tagName;
         if (tag !== 'INPUT' && tag !== 'TEXTAREA') return;
         setTimeout(function () {
+            resetOffsetSamples();
             root.classList.remove('keyboard-offset-ready');
-            applyKeyboardOffset();
+            applyKeyboardOffset(true);
         }, 120);
     });
 
     window.measureChatComposerHeight = measureChatComposerHeight;
+    window.resetViewportScroll = resetViewportScroll;
 })();

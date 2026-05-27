@@ -1,4 +1,4 @@
-const CACHE_NAME = "xiaoshouji-pwa-v25";
+const CACHE_NAME = "xiaoshouji-pwa-v27";
 const CORE_ASSETS = [
   "./",
   "./index.html",
