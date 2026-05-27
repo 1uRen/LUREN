@@ -394,7 +394,6 @@ function renderChatInterface() {
                         autocapitalize="sentences"
                         enterkeyhint="send"
                         inputmode="text"
-                        onfocus="if(typeof resetViewportScroll==='function')resetViewportScroll()"
                         placeholder="输入消息或表情描述..."
                         value="${state.chatInputStickerSuggestKeyword || ''}"
                         oncompositionstart="setChatInputComposing(true)"

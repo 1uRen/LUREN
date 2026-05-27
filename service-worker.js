@@ -1,50 +1,4 @@
-const CACHE_NAME = "xiaoshouji-pwa-v27";
-const CORE_ASSETS = [
-  "./",
-  "./index.html",
-  "./device-runtime.js",
-  "./viewport.css",
-  "./manifest.webmanifest",
-  "./pwa-icon.svg",
-  "./chat.js",
-  "./api.js",
-  "./storage.js",
-  "./setting.js",
-  "./chat-base.css",
-  "./chat-components.css",
-  "./chat-search.css",
-  "./chat-theme.css",
-  "./chat-ai.js",
-  "./chat-ai-send.js",
-  "./chat-chat-list.js",
-  "./chat-contacts.js",
-  "./chat-core.js",
-  "./chat-forward.js",
-  "./chat-friends.js",
-  "./chat-messages.js",
-  "./chat-plus.js",
-  "./chat-profile.js",
-  "./chat-render-chat.js",
-  "./chat-render-contacts.js",
-  "./chat-render-core.js",
-  "./chat-render-modals.js",
-  "./chat-render-profile.js",
-  "./chat-render-search.js",
-  "./chat-render-sidebar.js",
-  "./chat-render-wallet.js",
-  "./chat-search.js",
-  "./chat-selection.js",
-  "./chat-settings.js",
-  "./chat-sidebar.js",
-  "./chat-state.js",
-  "./chat-stickers.js",
-  "./chat-utils.js",
-  "./chat-wallet.js",
-  "./chat-wallet-pay.js",
-  "./chat-render-pay.js",
-  "./split-chat.js",
-  "./split-chat-render.js"
-];
+const CACHE_NAME = "xiaoshouji-pwa-v30";
 
 function isAppShellRequest(request) {
   if (request.method !== "GET") return false;
@@ -52,7 +6,7 @@ function isAppShellRequest(request) {
   if (url.origin !== self.location.origin) return false;
   if (url.pathname.endsWith("/service-worker.js")) return false;
   if (url.pathname.endsWith("/") || url.pathname.endsWith(".html")) return true;
-  return /\.(js|css|webmanifest)$/i.test(url.pathname);
+  return /\.(js|css|webmanifest|svg)$/i.test(url.pathname);
 }
 
 function isNavigationRequest(request) {
@@ -61,49 +15,59 @@ function isNavigationRequest(request) {
   return accept.includes("text/html");
 }
 
-function fetchNoStore(request) {
-  return fetch(new Request(request, { cache: "no-store" }));
-}
-
 function putInCache(request, response) {
   if (!response || response.status !== 200) return;
   const copy = response.clone();
   caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
 }
 
-function networkFirst(request) {
-  return fetchNoStore(request)
-    .then((response) => {
-      putInCache(request, response);
-      return response;
-    })
-    .catch(() =>
-      caches.match(request).then((cached) => cached || caches.match("./index.html"))
-    );
+function cacheFirst(request) {
+  return caches.match(request).then((cached) => {
+    if (cached) {
+      fetch(request)
+        .then((response) => putInCache(request, response))
+        .catch(() => {});
+      return cached;
+    }
+    return fetch(request)
+      .then((response) => {
+        putInCache(request, response);
+        return response;
+      })
+      .catch(() => caches.match("./index.html"));
+  });
 }
 
-function networkOnly(request) {
-  return fetchNoStore(request).catch(() =>
-    caches.match(request).then((cached) => cached || caches.match("./index.html"))
-  );
+function navigationHandler(request) {
+  return caches.match(request).then((cached) => {
+    const networkFetch = fetch(request)
+      .then((response) => {
+        putInCache(request, response);
+        return response;
+      })
+      .catch(() => null);
+
+    if (cached) {
+      networkFetch.catch(() => {});
+      return cached;
+    }
+
+    return networkFetch.then(
+      (response) => response || caches.match("./index.html") || caches.match("./")
+    );
+  });
 }
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) =>
-      Promise.allSettled(CORE_ASSETS.map((asset) => cache.add(asset)))
-    )
-  );
   self.skipWaiting();
+  event.waitUntil(caches.open(CACHE_NAME));
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
       ).then(() => self.clients.claim())
     )
   );
@@ -120,16 +84,16 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(event.request.url);
   if (url.pathname.endsWith("/service-worker.js")) {
-    event.respondWith(fetchNoStore(event.request));
+    event.respondWith(fetch(event.request));
     return;
   }
 
   if (isNavigationRequest(event.request)) {
-    event.respondWith(networkOnly(event.request));
+    event.respondWith(navigationHandler(event.request));
     return;
   }
 
   if (isAppShellRequest(event.request)) {
-    event.respondWith(networkFirst(event.request));
+    event.respondWith(cacheFirst(event.request));
   }
 });

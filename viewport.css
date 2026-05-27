@@ -33,7 +33,17 @@ html {
     width: 100%;
     height: 100%;
     margin: 0;
-    background-color: var(--tab-bar-bg);
+    background-color: #e8e4dc;
+}
+
+html:has(body.mode-home) {
+    background: var(--home-wallpaper) center/cover no-repeat fixed;
+    background-color: #e8e4dc;
+}
+
+html:has(body.mode-chat),
+html:has(body.mode-settings) {
+    background-color: var(--app-bg);
 }
 
 html,
@@ -51,17 +61,8 @@ body {
     background-color: var(--app-bg);
 }
 
-/* iOS：壳层底色延伸到 Home Indicator 区域，避免底部露白/露黑 */
-html[data-os="ios"] body.mode-chat {
-    background-color: var(--tab-bar-bg);
-}
-
-html[data-os="ios"] body.mode-settings {
+body.mode-settings {
     background-color: #f5f5f7;
-}
-
-html[data-os="ios"] body.mode-home {
-    background-color: #e8e4dc;
 }
 
 body.mode-home,
@@ -85,18 +86,21 @@ body.mode-home .iphone-container {
     width: 100%;
     min-height: 0;
     height: 100%;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     background: transparent;
     box-sizing: border-box;
-    padding: var(--safe-top-effective) var(--safe-right) var(--home-pad-bottom, var(--safe-bottom-effective)) var(--safe-left);
+    padding: var(--safe-top-effective) var(--safe-right) 0 var(--safe-left);
     position: relative;
 }
 
-/* iOS 主屏幕 PWA：壁纸铺满到底，内容延伸进 Home Indicator 区域 */
-html[data-os="ios"][data-standalone="true"] body.mode-home .iphone-container {
-    --home-pad-bottom: 0px;
+/* 主屏：壁纸延伸进 Home Indicator / 手势条区域，不留壳层色条 */
+html[data-os="ios"][data-standalone="true"] body.mode-home .iphone-container,
+html[data-os="android"] body.mode-home .iphone-container {
+    padding-bottom: 0;
 }
 
 html[data-os="ios"] body.mode-chat .iphone-container,
@@ -238,22 +242,27 @@ body.mode-settings .settings-app {
 .chat-composer {
     flex-shrink: 0;
     z-index: 30;
-    background: #F0E8D4;
+    background: transparent;
     box-sizing: border-box;
-    will-change: transform;
+    padding-bottom: 0;
+}
+
+/* 安全区由最底部一块面板自身背景延伸，避免 #F0E8D4 条与 #fff9ef 加号面板错位 */
+.chat-composer > :last-child {
+    padding-bottom: calc(8px + var(--safe-bottom-effective));
+}
+
+.chat-composer > .plus-sheet:last-child,
+.chat-composer > .sticker-sheet:last-child {
     padding-bottom: var(--safe-bottom-effective);
 }
 
-/* Android 浏览器：布局视口随键盘收缩，仅上抬浏览器密码/自动填充条高度 */
+/* Android 浏览器：布局视口收缩后，再避开密码/自动填充条 */
 html[data-keyboard-strategy="layout-resize"][data-input="keyboard-open"] .chat-composer {
     transform: translateY(calc(-1 * var(--input-accessory-inset, 0px)));
 }
 
-html.keyboard-offset-ready[data-keyboard-strategy="layout-resize"][data-input="keyboard-open"] .chat-composer {
-    transition: transform 0.18s ease-out;
-}
-
-/* iOS / 兜底：稳定测量后再整体上移，避免先飞到顶部 */
+/* 桌面等兜底：稳定测量后再整体上移 */
 html[data-keyboard-strategy="visual-offset"][data-input="keyboard-open"] .chat-composer {
     transform: translateY(calc(-1 * var(--keyboard-offset, 0px)));
 }
@@ -287,10 +296,6 @@ html[data-keyboard-strategy="layout-resize"][data-input="keyboard-open"] .chat-f
 .chat-fullscreen .message-select-bar {
     padding-bottom: max(8px, var(--safe-bottom-effective));
     background: #F0E8D4;
-}
-
-html[data-input="keyboard-open"] .chat-composer {
-    padding-bottom: var(--safe-bottom-effective);
 }
 
 html[data-input="keyboard-open"] .chat-composer .chat-tools-bar,
