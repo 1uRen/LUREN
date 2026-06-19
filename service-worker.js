@@ -1,9 +1,10 @@
-const CACHE_NAME = "xiaoshouji-pwa-v132";
+const CACHE_NAME = "xiaoshouji-pwa-v133";
 
 const PRECACHE_URLS = [
   "./index.html",
   "./manifest.webmanifest",
-  "./pwa-icon.png",
+  "./pwa-icon-192.png",
+  "./pwa-icon-512.png",
   "./service-worker.js"
 ];
 
