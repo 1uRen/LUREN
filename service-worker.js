@@ -1,4 +1,11 @@
-const CACHE_NAME = "xiaoshouji-pwa-v131";
+const CACHE_NAME = "xiaoshouji-pwa-v132";
+
+const PRECACHE_URLS = [
+  "./index.html",
+  "./manifest.webmanifest",
+  "./pwa-icon.png",
+  "./service-worker.js"
+];
 
 function isAppShellRequest(request) {
   if (request.method !== "GET") return false;
@@ -60,7 +67,11 @@ function navigationHandler(request) {
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
-  event.waitUntil(caches.open(CACHE_NAME));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.allSettled(PRECACHE_URLS.map((url) => cache.add(url)))
+    )
+  );
 });
 
 self.addEventListener("activate", (event) => {

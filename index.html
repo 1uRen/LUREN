@@ -10,7 +10,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="format-detection" content="telephone=no">
     <meta name="msapplication-tap-highlight" content="no">
-    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="manifest" href="./manifest.webmanifest" type="application/manifest+json">
     <link rel="icon" href="./pwa-icon.png" type="image/png">
     <link rel="apple-touch-icon" href="./pwa-icon.png">
     <meta name="theme-color" content="#eceef2">
@@ -266,24 +266,10 @@
     <script>
         if ('serviceWorker' in navigator) {
             const SW_URL = './service-worker.js?v=' + encodeURIComponent(window.__APP_VERSION__ || 'dev');
-            let swRegistered = false;
 
-            function registerServiceWorker() {
-                if (swRegistered) return;
-                swRegistered = true;
-                navigator.serviceWorker.register(SW_URL).catch(function (error) {
-                    console.warn('Service Worker 注册失败:', error);
-                    swRegistered = false;
-                });
-            }
-
-            if ('requestIdleCallback' in window) {
-                requestIdleCallback(registerServiceWorker, { timeout: 4000 });
-            } else {
-                window.addEventListener('load', function () {
-                    setTimeout(registerServiceWorker, 1500);
-                }, { once: true });
-            }
+            navigator.serviceWorker.register(SW_URL, { scope: './' }).catch(function (error) {
+                console.warn('Service Worker 注册失败:', error);
+            });
         }
 
         if (typeof applyDisplayMode === 'function') {
