@@ -1,0 +1,723 @@
+/* 磨砂蓝白主题 — themes/glass.css
+ * 默认主题。新增主题请新建 themes/<id>.css 并在 index.html 引入。
+ */
+
+:root,
+html[data-chat-theme="glass"] {
+    --app-bg: #f4f7fa;
+    --tab-bar-bg: rgba(255, 255, 255, 0.78);
+    --ios-bottom-fill: #f4f7fa;
+    --chat-chrome-bg: rgba(255, 255, 255, 0.58);
+    --chat-surface: rgba(255, 255, 255, 0.52);
+    --chat-surface-solid: #f0f3f7;
+    --chat-surface-active: rgba(255, 255, 255, 0.72);
+    --chat-muted-surface: rgba(255, 255, 255, 0.42);
+    --chat-muted-surface-strong: rgba(255, 255, 255, 0.62);
+    --chat-accent: #839bab;
+    --chat-text-accent: #5a6d7a;
+    --chat-title-muted: #1d1d1f;
+    --chat-text: #1d1d1f;
+    --chat-text-muted: #8e8e93;
+    --chat-border: rgba(255, 255, 255, 0.82);
+    --chat-border-subtle: rgba(255, 255, 255, 0.55);
+    --chat-neu-border: rgba(255, 255, 255, 0.88);
+    --chat-neu-border-dim: rgba(15, 35, 55, 0.05);
+    --chat-neu-raise: 6px 6px 18px rgba(15, 35, 55, 0.08), -5px -5px 16px rgba(255, 255, 255, 0.94), inset 0 1px 0 rgba(255, 255, 255, 0.82);
+    --chat-neu-soft: 4px 4px 14px rgba(15, 35, 55, 0.06), -3px -3px 12px rgba(255, 255, 255, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    --chat-neu-inset: inset 4px 4px 10px rgba(15, 35, 55, 0.07), inset -3px -3px 8px rgba(255, 255, 255, 0.9);
+    --chat-neu-press: inset 3px 3px 8px rgba(15, 35, 55, 0.09), inset -2px -2px 5px rgba(255, 255, 255, 0.68);
+    --chat-neu-chrome: 0 6px 20px rgba(15, 35, 55, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    --chat-bubble-mine: rgba(255, 255, 255, 0.72);
+    --chat-bubble-other: rgba(255, 255, 255, 0.72);
+    --chat-bubble-glass: rgba(255, 255, 255, 0.72);
+    --chat-bubble-glass-border: rgba(255, 255, 255, 0.96);
+    --chat-bubble-glass-shadow: 4px 4px 14px rgba(15, 35, 55, 0.06), -3px -3px 12px rgba(255, 255, 255, 0.88);
+    --chat-bubble-glass-blur: blur(20px) saturate(1.25);
+    --chat-bubble-glass-text: #5a6d7a;
+    --chat-composer-action-bg: rgba(255, 255, 255, 0.78);
+    --chat-composer-action-border: rgba(255, 255, 255, 0.96);
+    --chat-composer-action-shadow: 4px 4px 14px rgba(15, 35, 55, 0.07), -3px -3px 12px rgba(255, 255, 255, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    --chat-composer-action-blur: blur(18px) saturate(1.22);
+    --chat-glass-blur: blur(24px) saturate(1.25);
+    --chat-sidebar-gradient-end: #eef2f6;
+    --profile-card-gradient-end: #eef2f6;
+    --chat-voice-transcript-bg: rgba(255, 255, 255, 0.55);
+    --chat-voice-transcript-text: #5a6d7a;
+    --chat-search-bg: rgba(255, 255, 255, 0.72);
+    --chat-search-text: #8e8e93;
+    --chat-tool-surface: rgba(255, 255, 255, 0.68);
+    --chat-tool-border: rgba(255, 255, 255, 0.82);
+    --chat-wallet-hero: #e8eef4;
+    --chat-receive-btn: #839bab;
+    --chat-hit-mine-bg: rgba(131, 155, 171, 0.14);
+    --chat-search-highlight: rgba(131, 155, 171, 0.28);
+    --chat-search-highlight-text: #3d5563;
+    --chat-composer-sheet-bg: rgba(255, 255, 255, 0.9);
+    --chat-composer-sheet-border: rgba(255, 255, 255, 0.82);
+    --chat-composer-sheet-handle: rgba(131, 155, 171, 0.38);
+    --chat-slider-track: rgba(131, 155, 171, 0.28);
+    --chat-settings-plus-bg: #dce6ed;
+    --chat-settings-plus-color: var(--chat-accent);
+    --chat-press-bg: rgba(131, 155, 171, 0.12);
+    --chat-press-bg-strong: rgba(131, 155, 171, 0.22);
+    --chat-btn-surface: rgba(255, 255, 255, 0.92);
+    --chat-btn-border: rgba(255, 255, 255, 0.98);
+    --chat-btn-shadow: 5px 5px 16px rgba(15, 35, 55, 0.08), -4px -4px 14px rgba(255, 255, 255, 0.92), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    --chat-btn-shadow-active: var(--chat-neu-press);
+    --chat-btn-blur: blur(20px) saturate(1.22);
+    --chat-btn-color: var(--chat-accent);
+}
+
+html[data-chat-theme="glass"] .chat-header,
+html[data-chat-theme="glass"] .chat-fullscreen .chat-header,
+html[data-chat-theme="glass"] .chat-fullscreen .chat-input-stack,
+html[data-chat-theme="glass"] .chat-fullscreen .chat-sticker-suggest,
+html[data-chat-theme="glass"] .chat-fullscreen .chat-tools-bar,
+html[data-chat-theme="glass"] .chat-fullscreen .replying-quote-bar,
+html[data-chat-theme="glass"] .chat-fullscreen .message-select-bar,
+html[data-chat-theme="glass"] .bottom-nav,
+html[data-chat-theme="glass"] .channels-header,
+html[data-chat-theme="glass"] .group-manager-header {
+    backdrop-filter: var(--chat-glass-blur);
+    -webkit-backdrop-filter: var(--chat-glass-blur);
+    border-color: var(--chat-border);
+    box-shadow: var(--chat-neu-chrome);
+}
+
+html[data-chat-theme="glass"] .chat-app:not(.theme-detail-preview-shell) .bottom-nav {
+    box-shadow: 0 -6px 22px rgba(15, 35, 55, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
+html[data-chat-theme="glass"] .chat-app:not(.theme-detail-preview-shell) .chat-item {
+    background: var(--chat-surface);
+    backdrop-filter: blur(14px) saturate(1.15);
+    -webkit-backdrop-filter: blur(14px) saturate(1.15);
+    margin: 0 12px 10px;
+    border-radius: 16px;
+    border: 1px solid var(--chat-neu-border);
+    border-bottom: none;
+    box-shadow: var(--chat-neu-soft);
+}
+
+html[data-chat-theme="glass"] .chat-app:not(.theme-detail-preview-shell) .chat-item.pinned {
+    background: var(--chat-surface-active);
+}
+
+html[data-chat-theme="glass"] .chat-app:not(.theme-detail-preview-shell) .chat-item:active {
+    box-shadow: var(--chat-neu-press);
+}
+
+html[data-chat-theme="glass"] .chat-app:not(.theme-detail-preview-shell) .chat-list {
+    padding: 8px 0 12px;
+}
+
+html[data-chat-theme="glass"] .sidebar {
+    background: linear-gradient(to bottom, #ffffff 0%, #ffffff 52%, var(--chat-sidebar-gradient-end) 100%);
+    box-shadow: 8px 0 24px rgba(15, 35, 55, 0.06);
+}
+
+html[data-chat-theme="glass"] .chat-app:not(.theme-detail-preview-shell),
+html[data-chat-theme="glass"] .chat-app:not(.theme-detail-preview-shell) span,
+html[data-chat-theme="glass"] .chat-app:not(.theme-detail-preview-shell) div,
+html[data-chat-theme="glass"] .chat-app:not(.theme-detail-preview-shell) button,
+html[data-chat-theme="glass"] .chat-app:not(.theme-detail-preview-shell) input,
+html[data-chat-theme="glass"] .chat-app:not(.theme-detail-preview-shell) textarea,
+html[data-chat-theme="glass"] .chat-app:not(.theme-detail-preview-shell) select {
+    color: var(--chat-text-accent);
+}
+
+html[data-chat-theme="glass"] .header-title,
+html[data-chat-theme="glass"] .group-title,
+html[data-chat-theme="glass"] .group-manager-title,
+html[data-chat-theme="glass"] .modal-title,
+html[data-chat-theme="glass"] .post-title,
+html[data-chat-theme="glass"] .profile-remark,
+html[data-chat-theme="glass"] .profile-zone-title,
+html[data-chat-theme="glass"] .signature-history-title,
+html[data-chat-theme="glass"] .user-nickname {
+    color: var(--chat-title-muted);
+}
+
+html[data-chat-theme="glass"] .chat-app .switch-account,
+html[data-chat-theme="glass"] .chat-app .group-manage-link {
+    color: var(--chat-accent);
+}
+
+html[data-chat-theme="glass"] .chat-app .transfer-detail-refund-link {
+    color: var(--chat-accent) !important;
+    -webkit-text-fill-color: var(--chat-accent) !important;
+    background: transparent !important;
+}
+
+html[data-chat-theme="glass"] .chat-app .add-friend-add-btn .add-friend-action-icon {
+    background-color: var(--chat-accent) !important;
+}
+
+html[data-chat-theme="glass"] .chat-app .message-search-more-btn,
+html[data-chat-theme="glass"] .chat-app .message-search-recent-clear {
+    color: var(--chat-accent) !important;
+}
+
+html[data-chat-theme="glass"] .contacts-initial,
+html[data-chat-theme="glass"] .found-contact-card {
+    background: var(--chat-muted-surface);
+    color: var(--chat-accent);
+}
+
+html[data-chat-theme="glass"] .theme-detail-apply,
+html[data-chat-theme="glass"] .api-btn,
+html[data-chat-theme="glass"] .home-modal-btn {
+    background: var(--chat-btn-surface);
+    color: var(--chat-btn-color);
+    border: 1px solid var(--chat-btn-border);
+    box-shadow: var(--chat-btn-shadow);
+    backdrop-filter: var(--chat-btn-blur);
+    -webkit-backdrop-filter: var(--chat-btn-blur);
+}
+
+html[data-chat-theme="glass"] .theme-detail-apply:active,
+html[data-chat-theme="glass"] .api-btn:active,
+html[data-chat-theme="glass"] .home-modal-btn:active {
+    box-shadow: var(--chat-btn-shadow-active);
+    transform: scale(0.98);
+}
+
+html[data-chat-bubble="glass-blue"] .chat-app:not(.theme-detail-preview-shell) .chat-fullscreen .message-item .message-content:not(.message-content-image):not(.message-content-sticker):not(.message-content-photo) {
+    background: var(--chat-bubble-glass);
+    border: 1px solid var(--chat-bubble-glass-border);
+    box-shadow: var(--chat-bubble-glass-shadow);
+    backdrop-filter: var(--chat-bubble-glass-blur);
+    -webkit-backdrop-filter: var(--chat-bubble-glass-blur);
+    color: var(--chat-bubble-glass-text);
+    border-radius: 999px;
+    padding: 6px 14px;
+    min-height: 0;
+}
+
+html[data-chat-bubble="glass-blue"] .chat-app:not(.theme-detail-preview-shell) .chat-fullscreen .message-item .message-content:not(.message-content-image):not(.message-content-sticker):not(.message-content-photo) * {
+    color: var(--chat-bubble-glass-text);
+}
+
+html[data-chat-bubble="glass-blue"] .chat-fullscreen .message-item .forward-from-tag {
+    color: var(--chat-text-accent);
+}
+
+html[data-chat-bubble="glass-blue"] .chat-fullscreen .message-item .quoted-message-block {
+    background: rgba(131, 155, 171, 0.12);
+}
+
+html[data-chat-bubble="glass-blue"] .chat-fullscreen .message-item .voice-transcript {
+    background: rgba(131, 155, 171, 0.1);
+    color: var(--chat-text-accent);
+}
+
+html[data-chat-theme="glass"] .chat-fullscreen .receive-btn,
+html[data-chat-theme="glass"] .chat-fullscreen .send-btn {
+    background: var(--chat-composer-action-bg);
+    border: 1px solid var(--chat-composer-action-border);
+    box-shadow: var(--chat-composer-action-shadow);
+    backdrop-filter: var(--chat-composer-action-blur);
+    -webkit-backdrop-filter: var(--chat-composer-action-blur);
+}
+
+html[data-chat-theme="glass"] .chat-fullscreen .receive-btn .icon-20,
+html[data-chat-theme="glass"] .chat-fullscreen .send-btn .icon-20 {
+    filter: brightness(0) saturate(100%) invert(48%) sepia(10%) saturate(900%) hue-rotate(165deg) brightness(94%) contrast(88%);
+}
+
+html[data-chat-theme="glass"] .chat-settings-danger-tip,
+html[data-chat-theme="glass"] .chat-settings-danger-icon,
+html[data-chat-theme="glass"] .chat-settings-danger-icon svg {
+    color: var(--chat-accent) !important;
+    fill: var(--chat-accent) !important;
+}
+
+html[data-chat-theme="glass"] .chat-fullscreen .plus-sheet,
+html[data-chat-theme="glass"] .chat-fullscreen .sticker-sheet {
+    backdrop-filter: var(--chat-glass-blur);
+    -webkit-backdrop-filter: var(--chat-glass-blur);
+    box-shadow: 0 -8px 28px rgba(15, 35, 55, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+html[data-chat-theme="glass"] .chat-app,
+html[data-chat-theme="glass"] .chat-fullscreen,
+html[data-chat-theme="glass"] .profile-page,
+html[data-chat-theme="glass"] .contacts-page,
+html[data-chat-theme="glass"] .posts-page,
+html[data-chat-theme="glass"] .wallet-page,
+html[data-chat-theme="glass"] .message-search-page {
+    background: var(--app-bg);
+}
+
+html[data-chat-theme="glass"] .chat-settings-card,
+html[data-chat-theme="glass"] .contacts-card,
+html[data-chat-theme="glass"] .friend-request-card,
+html[data-chat-theme="glass"] .contacts-empty-card,
+html[data-chat-theme="glass"] .modal-content,
+html[data-chat-theme="glass"] .group-add-popup,
+html[data-chat-theme="glass"] .context-menu,
+html[data-chat-theme="glass"] .wallet-services {
+    background: rgba(255, 255, 255, 0.74);
+    backdrop-filter: var(--chat-glass-blur);
+    -webkit-backdrop-filter: var(--chat-glass-blur);
+    border: 1px solid var(--chat-neu-border);
+    box-shadow: var(--chat-neu-soft);
+}
+
+html[data-chat-theme="glass"] .profile-card {
+    box-shadow: var(--chat-neu-raise);
+    border: 1px solid var(--chat-neu-border);
+}
+
+html[data-chat-theme="glass"] .profile-bottom-actions {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: var(--chat-glass-blur);
+    -webkit-backdrop-filter: var(--chat-glass-blur);
+    border-top: 1px solid var(--chat-neu-border);
+    box-shadow: 0 -4px 18px rgba(15, 35, 55, 0.05);
+}
+
+html[data-chat-theme="glass"] .message-list-search-trigger,
+html[data-chat-theme="glass"] .message-search-input-wrap {
+    background: var(--chat-search-bg);
+    border: none;
+    box-shadow: none;
+    border-radius: 999px;
+}
+
+html[data-chat-theme="glass"] .message-search-input {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+html[data-chat-theme="glass"] .chat-fullscreen .chat-input,
+html[data-chat-theme="glass"] .edit-input,
+html[data-chat-theme="glass"] .mock-voice-input,
+html[data-chat-theme="glass"] .url-input {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: none;
+    border-radius: 999px;
+}
+
+html[data-chat-theme="glass"] .action-btn,
+html[data-chat-theme="glass"] .contact-manage-tool-btn {
+    box-shadow: var(--chat-neu-soft);
+}
+
+html[data-chat-theme="glass"] .action-btn:active,
+html[data-chat-theme="glass"] .contact-manage-tool-btn:active,
+html[data-chat-theme="glass"] .modal-btn:active,
+html[data-chat-theme="glass"] .btn-primary-sm:active,
+html[data-chat-theme="glass"] .btn-secondary-sm:active {
+    box-shadow: var(--chat-neu-press);
+}
+
+html[data-chat-theme="glass"] .chat-fullscreen .receive-btn:active,
+html[data-chat-theme="glass"] .chat-fullscreen .send-btn:active {
+    box-shadow: var(--chat-neu-press);
+}
+
+html[data-chat-theme="glass"] .wallet-balance-section {
+    box-shadow: none;
+}
+
+html[data-chat-theme="glass"] .wallet-balance-label,
+html[data-chat-theme="glass"] .wallet-balance-amount,
+html[data-chat-theme="glass"] .wallet-collect-btn {
+    color: var(--chat-text-accent);
+}
+
+html[data-chat-theme="glass"] .post-card {
+    background: transparent;
+}
+
+html[data-chat-theme="glass"] .channels-discover-card {
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid var(--chat-neu-border);
+    box-shadow: var(--chat-neu-soft);
+    backdrop-filter: var(--chat-glass-blur);
+    -webkit-backdrop-filter: var(--chat-glass-blur);
+}
+
+/* —— 装扮页：主题卡片 / 详情预览 —— */
+.decorate-mock-theme-glass {
+    display: flex;
+    flex-direction: column;
+    background: #eceef2;
+    font-size: 10px;
+    line-height: 1.2;
+}
+
+.decorate-mock-theme-glass .decorate-theme-header--glass {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 22%;
+    min-height: 28px;
+    background: rgba(255, 255, 255, 0.52);
+    color: #1d1d1f;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.72);
+}
+
+.decorate-mock-theme-glass .decorate-theme-back--glass {
+    position: absolute;
+    left: 6px;
+    font-size: 14px;
+    line-height: 1;
+    color: #5a6d7a;
+}
+
+.decorate-mock-theme-glass .decorate-theme-title--glass {
+    font-size: 11px;
+    font-weight: 600;
+    color: #1d1d1f;
+}
+
+.decorate-mock-theme-glass .decorate-theme-body--glass {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    padding: 4px 0;
+    background: #eceef2;
+}
+
+.decorate-mock-theme-glass .decorate-theme-row--glass {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 8px;
+    background: rgba(255, 255, 255, 0.45);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.decorate-mock-theme-glass .decorate-theme-avatar--glass {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d8e4ec 0%, #b8c9d4 100%);
+}
+
+.decorate-mock-theme-glass .decorate-theme-avatar--glass-alt {
+    flex: 0 0 18px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c5d4de 0%, #9eb3c2 100%);
+}
+
+.decorate-mock-theme-glass .decorate-theme-name--glass {
+    font-size: 9px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-bottom: 2px;
+}
+
+.decorate-mock-theme-glass .decorate-theme-msg--glass {
+    font-size: 8px;
+    color: #8e8e93;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.decorate-mock-theme-glass .decorate-theme-time--glass {
+    flex: 0 0 auto;
+    font-size: 7px;
+    color: #aeaeb2;
+}
+
+.decorate-mock-theme-glass .decorate-theme-tabbar--glass {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    height: 16%;
+    min-height: 20px;
+    padding: 0 10px;
+    background: rgba(255, 255, 255, 0.78);
+    border-top: 1px solid rgba(255, 255, 255, 0.72);
+}
+
+.decorate-mock-theme-glass .decorate-theme-tab--glass {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    background: rgba(131, 155, 171, 0.2);
+}
+
+.decorate-mock-theme-glass .decorate-theme-tab--glass.is-active {
+    background: rgba(131, 155, 171, 0.55);
+}
+
+.decorate-mock-bubble-glass {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 10px;
+    background: #f4f7fa;
+}
+
+.decorate-mock-bubble-glass .decorate-bubble-pill--glass-mine,
+.decorate-mock-bubble-glass .decorate-bubble-pill--glass-char {
+    background: rgba(255, 255, 255, 0.72);
+    color: #5a6d7a;
+    border: 1px solid rgba(255, 255, 255, 0.96);
+    box-shadow: 4px 4px 14px rgba(15, 35, 55, 0.06), -3px -3px 12px rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(20px) saturate(1.25);
+    -webkit-backdrop-filter: blur(20px) saturate(1.25);
+    border-radius: 999px;
+}
+
+.theme-detail-preview-shell[data-chat-theme="glass"] {
+    --app-bg: #f4f7fa;
+    --tab-bar-bg: rgba(255, 255, 255, 0.78);
+    --chat-chrome-bg: rgba(255, 255, 255, 0.58);
+    --chat-surface: rgba(255, 255, 255, 0.52);
+    --chat-surface-solid: #f0f3f7;
+    --chat-surface-active: rgba(255, 255, 255, 0.72);
+    --chat-muted-surface: rgba(255, 255, 255, 0.42);
+    --chat-accent: #839bab;
+    --chat-text-accent: #5a6d7a;
+    --chat-title-muted: #1d1d1f;
+    --chat-border-subtle: rgba(255, 255, 255, 0.55);
+    --chat-neu-border: rgba(255, 255, 255, 0.88);
+    --chat-neu-soft: 4px 4px 14px rgba(15, 35, 55, 0.06), -3px -3px 12px rgba(255, 255, 255, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    --chat-neu-inset: inset 4px 4px 10px rgba(15, 35, 55, 0.07), inset -3px -3px 8px rgba(255, 255, 255, 0.9);
+    --chat-neu-press: inset 3px 3px 8px rgba(15, 35, 55, 0.09), inset -2px -2px 5px rgba(255, 255, 255, 0.68);
+    --chat-bubble-mine: rgba(255, 255, 255, 0.72);
+    --chat-bubble-other: rgba(255, 255, 255, 0.72);
+    --chat-bubble-glass: rgba(255, 255, 255, 0.72);
+    --chat-bubble-glass-border: rgba(255, 255, 255, 0.96);
+    --chat-bubble-glass-shadow: 4px 4px 14px rgba(15, 35, 55, 0.06), -3px -3px 12px rgba(255, 255, 255, 0.88);
+    --chat-bubble-glass-blur: blur(20px) saturate(1.25);
+    --chat-bubble-glass-text: #5a6d7a;
+    --chat-composer-action-bg: rgba(255, 255, 255, 0.78);
+    --chat-composer-action-border: rgba(255, 255, 255, 0.96);
+    --chat-composer-action-shadow: 4px 4px 14px rgba(15, 35, 55, 0.07), -3px -3px 12px rgba(255, 255, 255, 0.9), inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    --chat-composer-action-blur: blur(18px) saturate(1.22);
+    --chat-sidebar-gradient-end: #eef2f6;
+    --chat-glass-blur: blur(24px) saturate(1.25);
+    --chat-btn-surface: rgba(255, 255, 255, 0.92);
+    --chat-btn-border: rgba(255, 255, 255, 0.98);
+    --chat-btn-shadow: 5px 5px 16px rgba(15, 35, 55, 0.08), -4px -4px 14px rgba(255, 255, 255, 0.92), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    --chat-btn-shadow-active: var(--chat-neu-press);
+    --chat-btn-blur: blur(20px) saturate(1.22);
+    --chat-btn-color: var(--chat-accent);
+}
+
+.theme-detail-preview-shell[data-chat-theme="glass"] .chat-header,
+.theme-detail-preview-shell[data-chat-theme="glass"] .bottom-nav,
+.theme-detail-preview-shell[data-chat-theme="glass"] .chat-input-stack,
+.theme-detail-preview-shell[data-chat-theme="glass"] .chat-tools-bar {
+    backdrop-filter: var(--chat-glass-blur);
+    -webkit-backdrop-filter: var(--chat-glass-blur);
+}
+
+.theme-detail-preview-shell[data-chat-bubble="glass-blue"] .message-item .message-content:not(.message-content-image):not(.message-content-sticker):not(.message-content-photo) {
+    background: var(--chat-bubble-glass);
+    border: 1px solid var(--chat-bubble-glass-border);
+    box-shadow: var(--chat-bubble-glass-shadow);
+    backdrop-filter: var(--chat-bubble-glass-blur);
+    -webkit-backdrop-filter: var(--chat-bubble-glass-blur);
+    color: var(--chat-bubble-glass-text);
+    border-radius: 999px;
+    padding: 6px 14px;
+    min-height: 0;
+}
+
+.theme-detail-preview-shell[data-chat-bubble="glass-blue"] .message-item .message-content:not(.message-content-image):not(.message-content-sticker):not(.message-content-photo) * {
+    color: var(--chat-bubble-glass-text);
+}
+
+.theme-detail-preview-shell[data-chat-theme="glass"] .chat-item {
+    background: var(--chat-surface);
+    backdrop-filter: blur(14px) saturate(1.15);
+    -webkit-backdrop-filter: blur(14px) saturate(1.15);
+    margin: 0 12px 10px;
+    border-radius: 16px;
+    border: 1px solid var(--chat-neu-border);
+    border-bottom: none;
+    box-shadow: var(--chat-neu-soft);
+}
+
+.theme-detail-preview-shell[data-chat-theme="glass"] .chat-item.pinned {
+    background: var(--chat-surface-active);
+}
+
+.theme-detail-preview-shell[data-chat-theme="glass"] .chat-list {
+    padding: 8px 0 12px;
+}
+
+.theme-detail-preview-shell[data-chat-theme="glass"] .bottom-nav {
+    box-shadow: 0 -6px 22px rgba(15, 35, 55, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
+/* —— 红包 / 转账：磨砂拟态 —— */
+html[data-chat-theme="glass"] .pay-modal-label {
+    color: var(--chat-text-accent);
+}
+
+html[data-chat-theme="glass"] .pay-modal-send {
+    background: var(--chat-btn-surface) !important;
+    color: var(--chat-btn-color) !important;
+    border: 1px solid var(--chat-btn-border) !important;
+    box-shadow: var(--chat-btn-shadow) !important;
+    backdrop-filter: var(--chat-btn-blur) !important;
+    -webkit-backdrop-filter: var(--chat-btn-blur) !important;
+    -webkit-text-fill-color: var(--chat-btn-color) !important;
+    border-radius: 999px;
+}
+
+html[data-chat-theme="glass"] .pay-modal-send:active {
+    box-shadow: var(--chat-btn-shadow-active) !important;
+}
+
+html[data-chat-theme="glass"] .pay-card-qq-envelope {
+    --rp-cream: #f5e6c8;
+    box-shadow:
+        4px 4px 16px rgba(15, 35, 55, 0.08),
+        -2px -2px 12px rgba(255, 255, 255, 0.18),
+        0 4px 14px rgba(180, 72, 68, 0.18);
+}
+
+html[data-chat-theme="glass"] .pay-card-qq-envelope .rp-envelope-top {
+    background: #d86a66;
+}
+
+html[data-chat-theme="glass"] .pay-card-qq-envelope .rp-houndstooth {
+    background-color: #d86a66;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' shape-rendering='crispEdges'%3E%3Crect width='12' height='12' fill='%23d86a66'/%3E%3Cg fill='%23c85853'%3E%3Cpolygon points='0,0 6,0 0,6'/%3E%3Cpolygon points='12,12 6,12 12,6'/%3E%3Cpolygon points='12,0 12,6 6,0'/%3E%3Cpolygon points='0,12 0,6 6,12'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+html[data-chat-theme="glass"] .pay-card-qq-envelope .rp-curve,
+html[data-chat-theme="glass"] .pay-card-qq-envelope .rp-envelope-bottom {
+    background: #ba4f4a;
+}
+
+html[data-chat-theme="glass"] .redpacket-detail-header-bg {
+    background: #d86a66;
+}
+
+html[data-chat-theme="glass"] .redpacket-detail-header-bg .rp-houndstooth {
+    background-color: #d86a66;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' shape-rendering='crispEdges'%3E%3Crect width='12' height='12' fill='%23d86a66'/%3E%3Cg fill='%23c85853'%3E%3Cpolygon points='0,0 6,0 0,6'/%3E%3Cpolygon points='12,12 6,12 12,6'/%3E%3Cpolygon points='12,0 12,6 6,0'/%3E%3Cpolygon points='0,12 0,6 6,12'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+html[data-chat-theme="glass"] .pay-card-transfer {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(20px) saturate(1.25);
+    -webkit-backdrop-filter: blur(20px) saturate(1.25);
+    border: 1px solid var(--chat-neu-border);
+    box-shadow: var(--chat-neu-soft);
+    border-radius: 16px;
+    color: var(--chat-text-accent);
+}
+
+html[data-chat-theme="glass"] .pay-card-transfer-main {
+    padding: 12px 14px 10px;
+}
+
+html[data-chat-theme="glass"] .pay-card-transfer .pay-card-title {
+    color: var(--chat-title-muted);
+}
+
+html[data-chat-theme="glass"] .pay-card-transfer .pay-card-sub {
+    color: var(--chat-text-accent);
+    opacity: 1;
+}
+
+html[data-chat-theme="glass"] .pay-card-icon {
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: var(--chat-neu-soft);
+}
+
+html[data-chat-theme="glass"] .pay-card-icon-transfer::after {
+    color: var(--chat-accent);
+}
+
+html[data-chat-theme="glass"] .pay-card-transfer-footer {
+    background: rgba(255, 255, 255, 0.48);
+    color: var(--chat-text-muted);
+    border-top: 1px solid rgba(255, 255, 255, 0.65);
+}
+
+html[data-chat-theme="glass"] .pay-card-transfer .pay-btn-accept {
+    background: var(--chat-btn-surface);
+    color: var(--chat-accent);
+    border: 1px solid var(--chat-btn-border);
+    box-shadow: var(--chat-btn-shadow);
+    border-radius: 999px;
+}
+
+html[data-chat-theme="glass"] .pay-card-transfer .pay-btn-reject {
+    background: rgba(255, 255, 255, 0.45);
+    color: var(--chat-text-accent);
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 999px;
+}
+
+html[data-chat-theme="glass"] .transfer-recipient-name,
+html[data-chat-theme="glass"] .transfer-currency,
+html[data-chat-theme="glass"] .transfer-amount-input {
+    color: var(--chat-title-muted);
+}
+
+html[data-chat-theme="glass"] .transfer-field-label {
+    color: var(--chat-text-accent);
+}
+
+html[data-chat-theme="glass"] .transfer-amount-row,
+html[data-chat-theme="glass"] .transfer-note-editable {
+    border-bottom-color: rgba(131, 155, 171, 0.22);
+}
+
+html[data-chat-theme="glass"] .transfer-note-editable {
+    color: var(--chat-title-muted);
+}
+
+html[data-chat-theme="glass"] .transfer-submit-btn {
+    border-radius: 999px !important;
+}
+
+html[data-chat-theme="glass"] .transfer-detail-title,
+html[data-chat-theme="glass"] .transfer-detail-amount,
+html[data-chat-theme="glass"] .transfer-detail-info-value {
+    color: var(--chat-title-muted);
+}
+
+html[data-chat-theme="glass"] .transfer-detail-info-label {
+    color: var(--chat-text-muted);
+}
+
+html[data-chat-theme="glass"] .transfer-detail-info {
+    margin: 0 16px;
+    border-top: none;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: var(--chat-glass-blur);
+    -webkit-backdrop-filter: var(--chat-glass-blur);
+    border: 1px solid var(--chat-neu-border);
+    border-radius: 16px;
+    box-shadow: var(--chat-neu-soft);
+    padding: 4px 16px 8px;
+}
+
+html[data-chat-theme="glass"] .transfer-detail-check {
+    background: var(--chat-btn-surface);
+    border: 1px solid var(--chat-btn-border);
+    box-shadow: var(--chat-btn-shadow);
+}
+
+html[data-chat-theme="glass"] .transfer-detail-check-icon {
+    background-color: var(--chat-accent);
+}
+
+html[data-chat-theme="glass"] .transfer-detail-status-text {
+    color: var(--chat-text-accent);
+}

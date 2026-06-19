@@ -30,7 +30,10 @@ function resetBackgroundToDefault() {
             saveStateToStorage();
         }
     } else if (state.uploadMode === 'background') {
-        state.currentUser.background = DEFAULT_SIDEBAR_BG;
+        const themeSidebarBg = typeof getActiveThemeBackgrounds === 'function'
+            ? getActiveThemeBackgrounds().sidebarBg
+            : DEFAULT_SIDEBAR_BG;
+        state.currentUser.background = themeSidebarBg;
         saveStateToStorage();
     }
     closeModals();

@@ -1,72 +1,26 @@
-/* text and title color alignment */
-.chat-app,
-.chat-app span,
-.chat-app div,
-.chat-app button,
-.chat-app input,
-.chat-app textarea,
-.chat-app select {
-    color:#987754;
+/* 主题公共样式 — 各主题独立文件见 themes/ 目录 */
+
+html[data-chat-theme="glass"] .chat-app .add-friend-add-btn.is-added,
+html[data-chat-theme="warm"] .chat-app .add-friend-add-btn.is-added {
+    cursor: default;
+    pointer-events: none;
+    opacity: 0.95;
 }
 
-.header-title,
-.group-title,
-.group-manager-title,
-.modal-title,
-.post-title,
-.profile-remark,
-.profile-zone-title,
-.signature-history-title,
-.user-nickname {
-    color:#E2D3B2;
+html[data-chat-theme="glass"] .chat-app .avatar-unread-badge,
+html[data-chat-theme="glass"] .chat-app .nav-unread-badge,
+html[data-chat-theme="warm"] .chat-app .avatar-unread-badge,
+html[data-chat-theme="warm"] .chat-app .nav-unread-badge {
+    color: #ffffff;
 }
 
-/* force accent text/icons after global text color rule */
-.chat-app .switch-account,
-.chat-app .group-manage-link {
-    color:#E48C64;
+html[data-chat-theme="glass"] .chat-app .avatar-pick-placeholder-initial,
+html[data-chat-theme="warm"] .chat-app .avatar-pick-placeholder-initial {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
 }
 
-/* add-friend plus/check icons (override .chat-app button text color) */
-.chat-app .transfer-detail-refund-link {
-    color:#E48C64 !important;
-    -webkit-text-fill-color:#E48C64 !important;
-    background:transparent !important;
-}
-
-.chat-app .add-friend-add-btn .add-friend-action-icon {
-    background-color:#E48C64 !important;
-}
-.chat-app .add-friend-add-btn.is-added {
-    cursor:default;
-    pointer-events:none;
-    opacity:0.95;
-}
-
-.chat-app .avatar-unread-badge,
-.chat-app .nav-unread-badge {
-    color:#ffffff;
-}
-
-.chat-app .avatar-pick-placeholder-initial {
-    color:#ffffff !important;
-    -webkit-text-fill-color:#ffffff !important;
-}
-
-.chat-app .notification-badge {
-    color:#ffffff;
-}
-
-.chat-app .message-search-more-btn,
-.chat-app .message-search-recent-clear {
-    color:#E48C64 !important;
-}
-
-/* 转账页提交按钮：橙色底 + 白字（覆盖 .chat-app button 全局色） */
-.chat-app .transfer-submit-btn {
-    color:#ffffff !important;
-    background:#E48C64 !important;
-}
-.chat-app .transfer-submit-btn:active {
-    color:#ffffff !important;
+html[data-chat-theme="glass"] .chat-app .notification-badge,
+html[data-chat-theme="warm"] .chat-app .notification-badge {
+    color: #ffffff;
 }

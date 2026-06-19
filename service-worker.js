@@ -1,4 +1,4 @@
-const CACHE_NAME = "xiaoshouji-pwa-v133";
+const CACHE_NAME = "xiaoshouji-pwa-v134";
 
 const PRECACHE_URLS = [
   "./index.html",

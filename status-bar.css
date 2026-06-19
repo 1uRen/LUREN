@@ -1,20 +1,24 @@
 :root {
     --status-bar-content-height: 22px;
+    --status-bar-gap: 4px;
+    --status-bar-offset: 8px;
+    --status-bar-safe-top: max(0px, calc(var(--safe-top-effective, env(safe-area-inset-top, 0px)) - var(--status-bar-offset)));
+    --status-bar-total: calc(var(--status-bar-safe-top) + var(--status-bar-content-height) + var(--status-bar-gap));
 }
 
-/* 透明叠层：贴屏幕最顶，安全区内排一行时间/电量/信号 */
+/* 透明叠层：只显示时间/电量/信号，背景由下方顶栏延伸 */
 .system-status-bar {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     z-index: 300;
+    height: var(--status-bar-total);
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
     gap: 10px;
-    min-height: var(--status-bar-content-height);
-    padding: var(--safe-top-effective, env(safe-area-inset-top, 0px)) 16px 0;
+    padding: 0 16px 2px;
     box-sizing: border-box;
     background: transparent !important;
     font-size: 13px;
@@ -24,6 +28,11 @@
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
+}
+
+/* 子元素默认 pointer-events:auto 会挡住下层按钮，必须一并禁用 */
+.system-status-bar * {
+    pointer-events: none;
 }
 
 body.mode-home .system-status-bar {
@@ -104,8 +113,102 @@ html[data-status-bar="off"] .system-status-bar {
     display: none !important;
 }
 
-/* 主屏：状态栏自己处理顶部安全区，容器不再额外下移 */
-html[data-status-bar="on"] body.mode-home .iphone-container,
+/* 主屏：壁纸透过透明状态栏 */
+html[data-status-bar="on"] body.mode-home .iphone-container {
+    padding-top: var(--status-bar-total) !important;
+}
+
 html.preview-shell[data-status-bar="on"] body.mode-home .iphone-container {
-    padding-top: 0 !important;
+    padding-top: var(--status-bar-total) !important;
+}
+
+/* 内页：容器预留状态栏高度 */
+html[data-status-bar="on"] body.mode-chat .iphone-container,
+html[data-status-bar="on"] body.mode-settings .iphone-container,
+html[data-status-bar="on"] body.mode-decorate .iphone-container {
+    padding-top: var(--status-bar-total);
+    box-sizing: border-box;
+}
+
+/* 应用壳整体上移，顶栏才能填满状态栏预留区（否则只看到壁纸/底色） */
+html[data-status-bar="on"] body.mode-chat .iphone-container > .chat-app,
+html[data-status-bar="on"] body.mode-settings .iphone-container > .settings-app,
+html[data-status-bar="on"] body.mode-decorate .iphone-container > .decorate-app {
+    margin-top: calc(-1 * var(--status-bar-total));
+}
+
+/* 顶栏背景向上延伸：只加 padding，不再负 margin（避免被 .chat-app overflow 裁切） */
+html[data-status-bar="on"] .chat-header,
+html[data-status-bar="on"] .channels-header,
+html[data-status-bar="on"] .decorate-header,
+html[data-status-bar="on"] .settings-header,
+html[data-status-bar="on"] .group-manager-header {
+    padding-top: calc(var(--status-bar-total) + var(--header-pad-y, 10px)) !important;
+    box-sizing: border-box;
+}
+
+html[data-status-bar="on"] .decorate-header,
+html[data-status-bar="on"] .settings-header {
+    padding-top: calc(var(--status-bar-total) + 10px) !important;
+}
+
+html[data-status-bar="on"] .group-manager-header {
+    padding-top: calc(var(--status-bar-total) + 15px) !important;
+}
+
+/* 全屏子页：整页背景延伸进状态栏区 */
+html[data-status-bar="on"] .message-search-page,
+html[data-status-bar="on"] .profile-page,
+html[data-status-bar="on"] .signature-history-page {
+    padding-top: var(--status-bar-total);
+    box-sizing: border-box;
+}
+
+html[data-status-bar="on"] .signature-history-header {
+    padding-top: 15px !important;
+}
+
+html[data-status-bar="on"] .profile-back-btn {
+    top: calc(var(--status-bar-total) + 8px);
+}
+
+html[data-status-bar="on"] .message-search-top {
+    padding-top: 8px;
+}
+
+/* 红包/转账详情：顶栏背景延伸进状态栏区，内容下移到状态栏下方 */
+html[data-status-bar="on"] .redpacket-detail-header {
+    padding-top: calc(var(--status-bar-total) + 14px);
+    height: calc(118px + var(--status-bar-total));
+    box-sizing: border-box;
+}
+
+html[data-status-bar="on"] .redpacket-detail-back {
+    top: calc(var(--status-bar-total) + 10px);
+}
+
+html[data-status-bar="on"] .redpacket-detail-header-link {
+    top: calc(var(--status-bar-total) + 14px);
+}
+
+html[data-status-bar="on"] .transfer-detail-header {
+    padding-top: var(--status-bar-total);
+    height: calc(52px + var(--status-bar-total));
+    box-sizing: border-box;
+}
+
+/* 红包/转账全屏浮层：整页提到状态栏之上，状态栏仍叠最顶且穿透点击 */
+html:has(.redpacket-flow.show) .chat-fullscreen,
+html:has(.transfer-detail-flow.show) .chat-fullscreen {
+    z-index: 350;
+}
+
+html:has(.redpacket-flow.show) .system-status-bar,
+html:has(.transfer-detail-flow.show) .system-status-bar {
+    z-index: 4000;
+}
+
+/* 红包详情红底顶栏：状态栏文字改白色 */
+html[data-status-bar="on"]:has(.rp-phase-detail) body.mode-chat .system-status-bar {
+    color: #fff;
 }

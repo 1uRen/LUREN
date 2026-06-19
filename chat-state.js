@@ -8,6 +8,43 @@ const LEGACY_SIDEBAR_BGS = [
     'https://img.heliar.top/file/1779271268039_IMG_20260520_180038.png'
 ];
 
+const GLASS_SIDEBAR_BG = './assets/decorate/theme-glass-preview.png';
+const GLASS_PROFILE_BG = 'https://img.heliar.top/file/1781899249043_novelai_1781865381328_10.png';
+
+/** 各主题默认背景：换主题时切换侧边栏 / 资料页顶部图 */
+const CHAT_THEME_BACKGROUNDS = {
+    glass: {
+        sidebarBg: GLASS_SIDEBAR_BG,
+        profileBg: GLASS_PROFILE_BG
+    },
+    warm: {
+        sidebarBg: DEFAULT_SIDEBAR_BG,
+        profileBg: DEFAULT_PROFILE_BG
+    }
+};
+
+function getThemeBackgrounds(themeId) {
+    return CHAT_THEME_BACKGROUNDS[themeId] || CHAT_THEME_BACKGROUNDS.glass;
+}
+
+function getActiveThemeBackgrounds() {
+    const settings = typeof loadChatDecorateSettings === 'function'
+        ? loadChatDecorateSettings()
+        : { themeId: 'glass' };
+    return getThemeBackgrounds(settings.themeId || 'glass');
+}
+
+function applyThemeBackgrounds(themeId) {
+    const assets = getThemeBackgrounds(themeId);
+    if (!assets || !state.currentUser) return;
+    if (assets.sidebarBg) {
+        state.currentUser.background = assets.sidebarBg;
+    }
+    if (typeof saveStateToStorage === 'function') {
+        saveStateToStorage();
+    }
+}
+
 const state = {
     currentPage: 'messages',
     sidebarOpen: false,
@@ -269,6 +306,14 @@ function getChatListPreviewText(chat) {
     if (last.isSystemNotice) return last.text || '';
     if (last.paymentType === 'redPacket') return '[红包]';
     if (last.paymentType === 'transfer') return '[转账]';
+    if (last.isMockImage || last.isCameraImage) {
+        const label = String(last.text || last.imageName || '').trim();
+        return label ? `[图片] ${label}` : '[图片]';
+    }
+    if (last.isMockVoice) {
+        const label = String(last.text || '').trim();
+        return label ? `[语音] ${label}` : '[语音]';
+    }
     if (last.isSticker) return '[表情]';
     if (last.isForwardMerged) return '[聊天记录]';
     return last.text || '';

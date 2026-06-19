@@ -797,20 +797,28 @@ html[data-immersive="true"] .home-app-icon {
     width: 100%;
     padding: 13px;
     margin: 8px 0;
-    border: none;
+    border: 1px solid var(--chat-btn-border, transparent);
     border-radius: 12px;
     font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
+    background: var(--chat-btn-surface, rgba(120, 120, 128, 0.12));
+    color: var(--chat-btn-color, #007aff);
+    box-shadow: var(--chat-btn-shadow, none);
+    backdrop-filter: var(--chat-btn-blur, none);
+    -webkit-backdrop-filter: var(--chat-btn-blur, none);
+    transition: box-shadow 0.15s ease, transform 0.08s ease;
 }
 
-.home-modal-btn-primary {
-    background: #007aff;
-    color: #fff;
+.home-modal-btn:active {
+    box-shadow: var(--chat-btn-shadow-active, none);
+    transform: scale(0.98);
 }
 
+.home-modal-btn-primary,
 .home-modal-btn-secondary {
-    background: rgba(120, 120, 128, 0.12);
-    color: #007aff;
+    background: var(--chat-btn-surface, rgba(120, 120, 128, 0.12));
+    color: var(--chat-btn-color, #007aff);
 }
 
 .home-modal-close {

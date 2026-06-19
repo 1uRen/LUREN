@@ -7,7 +7,10 @@ function renderProfilePage() {
     const birthday = contact.birthday || '--';
     const constellation = contact.constellation || (contact.birthday ? getConstellation(contact.birthday) : '--');
     const signature = contact.signature || '';
-    const bgImage = contact.bgImage || DEFAULT_PROFILE_BG;
+    const themeProfileBg = typeof getActiveThemeBackgrounds === 'function'
+        ? getActiveThemeBackgrounds().profileBg
+        : DEFAULT_PROFILE_BG;
+    const bgImage = contact.bgImage || themeProfileBg || DEFAULT_PROFILE_BG;
 
     return `
         <div class="profile-page">

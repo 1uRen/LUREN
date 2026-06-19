@@ -1,6 +1,9 @@
 // chat-render-sidebar module
 function renderSidebar() {
-    const sidebarBg = state.currentUser?.background || DEFAULT_SIDEBAR_BG;
+    const themeSidebarBg = typeof getActiveThemeBackgrounds === 'function'
+        ? getActiveThemeBackgrounds().sidebarBg
+        : DEFAULT_SIDEBAR_BG;
+    const sidebarBg = state.currentUser?.background || themeSidebarBg || DEFAULT_SIDEBAR_BG;
     const hasWalletRedDot = !state.walletLastCollectDate || state.walletLastCollectDate !== getTodayDate();
     return `
         <div class="sidebar ${state.sidebarOpen ? 'open' : ''}">

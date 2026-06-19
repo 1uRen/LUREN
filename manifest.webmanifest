@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "小手机聊天",
-  "short_name": "小手机",
-  "description": "可安装到手机主屏幕的聊天应用",
+  "name": "鹿眠机",
+  "short_name": "鹿眠机",
+  "description": "鹿眠机 — 可安装到主屏幕的私人小手机",
   "lang": "zh-CN",
   "start_url": "./index.html",
   "scope": "./",

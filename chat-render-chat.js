@@ -139,7 +139,7 @@ function renderChatList() {
                          ontouchstart="startLongPress(event, ${originalIndex})"
                          ontouchend="cancelLongPress()">
                         ${chat.pinned ? '<div class="pinned-badge"></div>' : ''}
-                        <div class="chat-avatar-wrap ${chat.pinned ? 'pinned-offset' : ''}">
+                        <div class="chat-avatar-wrap">
                             <img class="avatar-44" src="${chat.contact.avatar || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Crect width=%22100%22 height=%22100%22 fill=%22%23ffffff%22/%3E%3C/svg%3E'}">
                             ${unread > 0 ? `<div class="avatar-unread-badge">${unread}</div>` : ''}
                         </div>

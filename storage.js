@@ -345,3 +345,52 @@ function loadHomeWidgetCommentAvatar() {
     }
     return '';
 }
+
+const DEFAULT_CHAT_DECORATE = {
+    themeId: 'glass',
+    bubbleId: 'glass-blue'
+};
+
+function loadChatDecorateSettings() {
+    const data = loadData();
+    const saved = data?.chatDecorate || {};
+    const themeId = saved.themeId || DEFAULT_CHAT_DECORATE.themeId;
+    const themeBubbleMap = {
+        glass: 'glass-blue',
+        warm: 'warm-orange'
+    };
+    return {
+        themeId,
+        bubbleId: themeBubbleMap[themeId] || DEFAULT_CHAT_DECORATE.bubbleId,
+        themePreviewImages: saved.themePreviewImages || {}
+    };
+}
+
+function saveChatDecorateSettings(settings) {
+    const data = loadData() || {};
+    const existing = data.chatDecorate || {};
+    const themeId = settings.themeId || DEFAULT_CHAT_DECORATE.themeId;
+    const themeBubbleMap = {
+        glass: 'glass-blue',
+        warm: 'warm-orange'
+    };
+    data.chatDecorate = {
+        themeId,
+        bubbleId: themeBubbleMap[themeId] || DEFAULT_CHAT_DECORATE.bubbleId,
+        themePreviewImages: settings.themePreviewImages || existing.themePreviewImages || {}
+    };
+    return saveData(data);
+}
+
+function saveThemePreviewImage(themeId, dataUrl) {
+    const settings = loadChatDecorateSettings();
+    settings.themePreviewImages = settings.themePreviewImages || {};
+    settings.themePreviewImages[themeId] = dataUrl;
+    return saveChatDecorateSettings(settings);
+}
+
+function getThemePreviewImage(theme) {
+    if (!theme) return '';
+    const settings = loadChatDecorateSettings();
+    return settings.themePreviewImages?.[theme.id] || theme.previewImage || '';
+}

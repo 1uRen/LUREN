@@ -239,26 +239,28 @@ function renderSettingsApp() {
             .api-btn {
                 flex: 1;
                 padding: 14px;
-                border: none;
+                border: 1px solid var(--chat-btn-border, transparent);
                 border-radius: 12px;
                 font-size: 15px;
-                font-weight: 500;
+                font-weight: 600;
                 cursor: pointer;
-                transition: opacity 0.2s;
+                background: var(--chat-btn-surface, #f2f2f7);
+                color: var(--chat-btn-color, #1d1d1f);
+                box-shadow: var(--chat-btn-shadow, none);
+                backdrop-filter: var(--chat-btn-blur, none);
+                -webkit-backdrop-filter: var(--chat-btn-blur, none);
+                transition: box-shadow 0.15s ease, transform 0.08s ease;
             }
             
             .api-btn:active {
-                opacity: 0.8;
+                box-shadow: var(--chat-btn-shadow-active, none);
+                transform: scale(0.98);
             }
             
-            .api-btn-primary {
-                background: #007aff;
-                color: white;
-            }
-            
+            .api-btn-primary,
             .api-btn-secondary {
-                background: #f2f2f7;
-                color: #1d1d1f;
+                background: var(--chat-btn-surface, #f2f2f7);
+                color: var(--chat-btn-color, #1d1d1f);
             }
             
             .api-btn:disabled {

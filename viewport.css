@@ -3,8 +3,8 @@
  * body.mode-home | mode-chat | mode-settings | mode-decorate 由 JS 切换
  */
 :root {
-    --app-bg: #FAF6EB;
-    --tab-bar-bg: #F0E8D4;
+    --app-bg: #f4f7fa;
+    --tab-bar-bg: rgba(255, 255, 255, 0.78);
     --app-height: 100dvh;
     --safe-top: env(safe-area-inset-top, 0px);
     --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -311,7 +311,7 @@ html[data-keyboard-strategy="layout-resize"][data-input="keyboard-open"] .chat-f
 
 .chat-fullscreen .message-select-bar {
     padding-bottom: max(8px, var(--safe-bottom-effective));
-    background: #F0E8D4;
+    background: var(--chat-chrome-bg);
 }
 
 html[data-input="keyboard-open"] .chat-composer .chat-tools-bar,
@@ -472,7 +472,7 @@ html[data-os="ios"] .chat-composer > .sticker-sheet:last-child {
 
 html[data-os="ios"] .chat-composer > .chat-tools-bar:last-child {
     padding-bottom: calc(8px + var(--safe-bottom-effective));
-    background: #F0E8D4;
+    background: var(--chat-chrome-bg);
 }
 
 html[data-os="ios"][data-input="keyboard-open"] .chat-composer > :last-child {

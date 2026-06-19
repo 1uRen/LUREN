@@ -82,7 +82,7 @@ function renderRedPacketDetailPage(ctx) {
                 <div class="redpacket-detail-header-bg" aria-hidden="true">
                     <div class="rp-houndstooth"></div>
                 </div>
-                <button type="button" class="redpacket-detail-back" aria-label="返回" onclick="closeRedPacketDetailPage()">‹</button>
+                <button type="button" class="redpacket-detail-back" aria-label="返回" onclick="event.stopPropagation(); closeRedPacketDetailPage()">‹</button>
                 <div class="redpacket-detail-title">QQ红包</div>
                 <div class="redpacket-detail-header-link">红包记录</div>
             </div>
@@ -298,7 +298,7 @@ function renderTransferDetailOverlay() {
         <div class="transfer-detail-flow show">
             <div class="transfer-detail-page">
                 <div class="transfer-detail-header">
-                    <button type="button" class="transfer-detail-back" aria-label="返回" onclick="closeTransferDetailPage()">‹</button>
+                    <button type="button" class="transfer-detail-back" aria-label="返回" onclick="event.stopPropagation(); closeTransferDetailPage()">‹</button>
                     <div class="transfer-detail-title">交易详情</div>
                 </div>
                 <div class="transfer-detail-body">

@@ -165,13 +165,22 @@
         return env.bottom > 0 ? env.bottom : 0;
     }
 
+    function readThemeColor(varName, fallback) {
+        try {
+            var value = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+            return value || fallback;
+        } catch (e) {
+            return fallback;
+        }
+    }
+
     function syncIosBottomFill() {
         var os = detectOs();
         if (os !== 'ios' && os !== 'android') return;
         var b = getBody();
         if (!b) return;
-        var fill = '#FAF6EB';
-        var shellBg = '#FAF6EB';
+        var fill = readThemeColor('--app-bg', '#eceef2');
+        var shellBg = readThemeColor('--app-bg', '#eceef2');
 
         if (b.classList.contains('mode-home')) {
             fill = '#e8e4dc';
@@ -183,17 +192,17 @@
             fill = '#f5f5f7';
             shellBg = '#f5f5f7';
         } else if (document.querySelector('.profile-page') || document.querySelector('.signature-history-page')) {
-            fill = '#FAF6EB';
-            shellBg = '#FAF6EB';
+            fill = readThemeColor('--app-bg', '#eceef2');
+            shellBg = readThemeColor('--app-bg', '#eceef2');
         } else if (document.querySelector('.chat-fullscreen')) {
             var plus = document.querySelector('.chat-composer .plus-sheet');
             var sticker = document.querySelector('.chat-composer .sticker-sheet');
-            fill = (plus || sticker) ? '#fff9ef' : '#F0E8D4';
-            shellBg = '#FAF6EB';
+            fill = (plus || sticker) ? readThemeColor('--chat-composer-sheet-bg', 'rgba(255, 255, 255, 0.88)') : readThemeColor('--chat-chrome-bg', 'rgba(255, 255, 255, 0.52)');
+            shellBg = readThemeColor('--app-bg', '#eceef2');
         } else if (document.querySelector('.bottom-nav')) {
-            fill = '#F0E8D4';
-            shellBg = '#F0E8D4';
-            root.style.setProperty('--ios-tab-shell-bg', '#F0E8D4');
+            fill = readThemeColor('--tab-bar-bg', 'rgba(255, 255, 255, 0.78)');
+            shellBg = readThemeColor('--tab-bar-bg', 'rgba(255, 255, 255, 0.78)');
+            root.style.setProperty('--ios-tab-shell-bg', fill);
         }
 
         root.style.setProperty('--ios-bottom-fill', fill);
@@ -211,7 +220,9 @@
         } else if (b.classList.contains('mode-chat')) {
             themeMeta.setAttribute(
                 'content',
-                document.querySelector('.bottom-nav') ? '#F0E8D4' : '#FAF6EB'
+                document.querySelector('.bottom-nav')
+                    ? readThemeColor('--tab-bar-bg', '#eceef2')
+                    : readThemeColor('--app-bg', '#eceef2')
             );
         }
     }
