@@ -148,3 +148,73 @@ function getConstellation(birthday) {
     if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return '摩羯座';
     return '--';
 }
+
+function getContactNameInitial(name) {
+    const text = String(name || '').trim();
+    if (!text) return '?';
+    return text.charAt(0);
+}
+
+function pickLowSatAvatarColor(seed) {
+    const input = String(seed != null ? seed : Math.random());
+    let hash = 0;
+    for (let i = 0; i < input.length; i++) {
+        hash = (hash << 5) - hash + input.charCodeAt(i);
+        hash |= 0;
+    }
+    const hue = Math.abs(hash) % 360;
+    return 'hsl(' + hue + ', 26%, 82%)';
+}
+
+function isCustomContactAvatar(avatar) {
+    if (!avatar) return false;
+    if (typeof DEFAULT_CONTACT_AVATAR !== 'undefined' && avatar === DEFAULT_CONTACT_AVATAR) return false;
+    return String(avatar).indexOf('data:image/svg+xml') !== 0;
+}
+
+function escapeAvatarInitialChar(ch) {
+    return String(ch || '?')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function buildContactAvatarPlaceholderDataUrl(name, bgColor) {
+    const initial = escapeAvatarInitialChar(getContactNameInitial(name));
+    const color = bgColor || pickLowSatAvatarColor(name || 'contact');
+    const svg =
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+        '<rect width="100" height="100" fill="' +
+        color +
+        '"/>' +
+        '<text x="50" y="54" text-anchor="middle" font-size="44" font-family="-apple-system,BlinkMacSystemFont,\'Segoe UI\',Roboto,sans-serif" fill="#ffffff">' +
+        initial +
+        '</text></svg>';
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
+function resolveContactAvatarSrc(name, avatar, placeholderColor) {
+    if (isCustomContactAvatar(avatar)) return avatar;
+    return buildContactAvatarPlaceholderDataUrl(name, placeholderColor);
+}
+
+function renderCreateContactAvatarInner(newFriend) {
+    const friend = newFriend || (typeof state !== 'undefined' ? state.newFriend : null) || {};
+    if (isCustomContactAvatar(friend.avatar)) {
+        return (
+            '<img class="avatar-preview avatar-pick-img" src="' +
+            friend.avatar +
+            '" alt="">'
+        );
+    }
+    const initial = escapeAvatarInitialChar(getContactNameInitial(friend.name));
+    const color = friend.avatarPlaceholderColor || pickLowSatAvatarColor(friend.qqId || 'new-contact');
+    return (
+        '<span class="avatar-pick-placeholder" style="background-color:' +
+        color +
+        '"><span class="avatar-pick-placeholder-initial" style="color:#ffffff">' +
+        initial +
+        '</span></span>'
+    );
+}

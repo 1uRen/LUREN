@@ -39,12 +39,15 @@ function initSettingsApp() {
     
     const container = document.querySelector('.iphone-container');
     if (!container) return;
-    document.body.classList.remove('mode-home', 'mode-chat');
+    document.body.classList.remove('mode-home', 'mode-chat', 'mode-decorate');
     document.body.classList.add('mode-settings');
     container.innerHTML = renderSettingsApp();
     attachSettingsListeners();
     if (typeof syncIosBottomFill === 'function') {
         requestAnimationFrame(syncIosBottomFill);
+    }
+    if (typeof mountStatusBar === 'function') {
+        requestAnimationFrame(mountStatusBar);
     }
 }
 
@@ -306,12 +309,72 @@ function renderSettingsApp() {
                 font-size: 12px;
                 color: #30d158;
             }
+
+            .settings-section-label {
+                padding: 8px 20px 4px;
+                font-size: 13px;
+                color: #8e8e93;
+            }
+
+            .settings-item-switch {
+                cursor: default;
+            }
+
+            .settings-item-switch:active {
+                background: transparent;
+            }
+
+            .settings-switch {
+                position: relative;
+                display: inline-block;
+                width: 51px;
+                height: 31px;
+                flex-shrink: 0;
+            }
+
+            .settings-switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+            .settings-switch-slider {
+                position: absolute;
+                cursor: pointer;
+                inset: 0;
+                background: #e9e9ea;
+                border-radius: 31px;
+                transition: background 0.2s;
+            }
+
+            .settings-switch-slider::before {
+                content: '';
+                position: absolute;
+                height: 27px;
+                width: 27px;
+                left: 2px;
+                bottom: 2px;
+                background: white;
+                border-radius: 50%;
+                transition: transform 0.2s;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            }
+
+            .settings-switch input:checked + .settings-switch-slider {
+                background: #34c759;
+            }
+
+            .settings-switch input:checked + .settings-switch-slider::before {
+                transform: translateX(20px);
+            }
         </style>
     `;
 }
 
 function renderSettingsMain() {
     const hasApiConfig = settingsState.apiSettings.apiUrl && settingsState.apiSettings.apiKey;
+    const immersiveMode = typeof loadImmersiveMode === 'function' ? loadImmersiveMode() : true;
+    const statusBarEnabled = typeof loadStatusBar === 'function' ? loadStatusBar() : true;
     
     return `
         <div class="settings-main">
@@ -332,6 +395,38 @@ function renderSettingsMain() {
                         <div class="settings-item-right">
                             <span class="settings-value">${hasApiConfig ? '已配置' : '未配置'}</span>
                             <span class="settings-arrow">›</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <div class="settings-item settings-item-switch">
+                        <div class="settings-item-left">
+                            <div class="settings-icon about">📶</div>
+                            <div>
+                                <span class="settings-label">状态栏</span>
+                                <div style="font-size:12px;color:#8e8e93;margin-top:2px;">顶部显示时间、电量与信号</div>
+                            </div>
+                        </div>
+                        <div class="settings-item-right">
+                            <label class="settings-switch" onclick="event.stopPropagation()">
+                                <input type="checkbox" ${statusBarEnabled ? 'checked' : ''} onchange="setStatusBarEnabled(this.checked)">
+                                <span class="settings-switch-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="settings-item settings-item-switch">
+                        <div class="settings-item-left">
+                            <div class="settings-icon about">📱</div>
+                            <div>
+                                <span class="settings-label">沉浸模式</span>
+                                <div style="font-size:12px;color:#8e8e93;margin-top:2px;">关闭后显示手机壳</div>
+                            </div>
+                        </div>
+                        <div class="settings-item-right">
+                            <label class="settings-switch" onclick="event.stopPropagation()">
+                                <input type="checkbox" ${immersiveMode ? 'checked' : ''} onchange="setImmersiveMode(this.checked)">
+                                <span class="settings-switch-slider"></span>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -389,7 +484,7 @@ function renderApiSettings() {
         <div class="api-settings">
             <div class="settings-header">
                 <div class="settings-header-left">
-                    <div class="back-btn" onclick="goBackToSettingsMain()">‹</div>
+                    <div class="back-btn" onclick="goBackFromApiSettings()">‹</div>
                     <div class="header-title">API设置</div>
                 </div>
                 <div></div>
@@ -480,6 +575,10 @@ function attachSettingsListeners() {
 function goBackToSettingsMain() {
     settingsState.currentPage = 'main';
     initSettingsApp();
+}
+
+function goBackFromApiSettings() {
+    goBackToSettingsMain();
 }
 
 function goToApiSettings() {
@@ -650,6 +749,23 @@ async function forceRefresh() {
 
 function goBackToHome() {
     location.reload();
+}
+
+function setImmersiveMode(enabled) {
+    if (typeof saveImmersiveMode === 'function') {
+        saveImmersiveMode(enabled);
+    }
+    if (typeof applyDisplayMode === 'function') {
+        applyDisplayMode();
+    }
+}
+
+function setStatusBarEnabled(enabled) {
+    if (typeof setStatusBar === 'function') {
+        setStatusBar(enabled);
+    } else if (typeof saveStatusBar === 'function') {
+        saveStatusBar(enabled);
+    }
 }
 
 function triggerImport() {

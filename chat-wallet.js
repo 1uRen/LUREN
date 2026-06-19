@@ -10,7 +10,14 @@ function closeWallet() {
     initChatApp();
 }
 
+function canCollectWalletReward() {
+    if (typeof getTodayDate !== 'function') return true;
+    return !state.walletLastCollectDate || state.walletLastCollectDate !== getTodayDate();
+}
+
 function collectReward() {
+    if (!canCollectWalletReward()) return;
+
     const reward = Math.floor(Math.random() * 49) + 2;
     state.walletCurrentReward = reward;
     state.walletBalance += reward;
@@ -37,4 +44,5 @@ function closeRewardAnimation() {
 window.openWallet = openWallet;
 window.closeWallet = closeWallet;
 window.collectReward = collectReward;
+window.canCollectWalletReward = canCollectWalletReward;
 window.closeRewardAnimation = closeRewardAnimation;

@@ -272,7 +272,8 @@
         return { text, isMockVoice };
     }
 
-    function requestChatCompletion(apiUrl, apiKey, model, messages, maxTokens = 500) {
+    function requestChatCompletion(apiUrl, apiKey, model, messages, maxTokens = 500, options) {
+        var opts = options && typeof options === 'object' ? options : {};
         return fetch(`${apiUrl}/chat/completions`, {
             method: 'POST',
             headers: {
@@ -283,13 +284,24 @@
                 model: model,
                 messages: messages,
                 max_tokens: maxTokens
+            }),
+            signal: opts.signal
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error('HTTP error! status: ' + response.status);
+                }
+                return response.json();
             })
-        }).then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        });
+            .catch(function (err) {
+                if (err && err.name === 'AbortError') {
+                    throw err;
+                }
+                if (err && err.message === 'Failed to fetch') {
+                    throw new Error('无法连接 API，请检查设置中的地址、密钥与网络');
+                }
+                throw err;
+            });
     }
 
     window.ChatApi = {

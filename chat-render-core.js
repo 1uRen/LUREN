@@ -7,9 +7,41 @@ function shouldHideMainNav() {
     if (state.currentProfileContact) return true;
     if (state.showGroupManager) return true;
     if (state.showFriendRequests) return true;
-    if (state.currentPage === 'messages' && state.messageSearchOpen) return true;
+    if (state.messageSearchOpen && ['messages', 'contacts', 'posts'].includes(state.currentPage)) return true;
     if (state.currentPage === 'messages' && state.currentChatContact) return true;
     return false;
+}
+
+function renderChannelsHeaderBar() {
+    const tab = state.channelsTab || 'recommend';
+    const generateIcon =
+        'https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/System/loop-right-line.svg';
+
+    return `
+        <div class="chat-header channels-header">
+            <div class="channels-header-side">
+                <button type="button" class="back-btn" aria-label="返回" onclick="event.stopPropagation(); goBack()">←</button>
+            </div>
+            <div class="channels-top-tabs" role="tablist">
+                <button type="button" role="tab" aria-selected="${tab === 'follow'}"
+                    class="channels-top-tab ${tab === 'follow' ? 'active' : ''}"
+                    onclick="switchChannelsTab('follow')">关注</button>
+                <button type="button" role="tab" aria-selected="${tab === 'recommend'}"
+                    class="channels-top-tab ${tab === 'recommend' ? 'active' : ''}"
+                    onclick="switchChannelsTab('recommend')">推荐</button>
+            </div>
+            <div class="channels-header-actions">
+                <button type="button" class="channels-header-icon-btn" aria-label="生成"
+                    onclick="openChannelsGenerate()">
+                    <span class="nav-icon-svg" style="--icon-url:url('${generateIcon}')"></span>
+                </button>
+                <button type="button" class="channels-header-icon-btn" aria-label="个人中心"
+                    onclick="openChannelsProfile()">
+                    <span class="nav-icon-svg" style="--icon-url:url('https://img.heliar.top/file/1779413265763_user-3-line.svg')"></span>
+                </button>
+            </div>
+        </div>
+    `;
 }
 
 function renderChatApp() {
@@ -54,7 +86,15 @@ function renderHeader() {
             </div>
         `;
     }
-    const title = state.currentPage === 'messages' ? '消息' : state.currentPage === 'contacts' ? '联系人' : '动态';
+    if (state.currentPage === 'channels') {
+        return renderChannelsHeaderBar();
+    }
+    const title =
+        state.currentPage === 'messages'
+            ? '消息'
+            : state.currentPage === 'contacts'
+              ? '联系人'
+              : '动态';
     return `
         <div class="chat-header">
             <button type="button" class="back-btn" aria-label="返回" onclick="event.stopPropagation(); goBack()">←</button>
@@ -62,6 +102,15 @@ function renderHeader() {
             <div></div>
         </div>
     `;
+}
+
+function renderGlobalSearchContentIfOpen() {
+    if (!state.messageSearchOpen) return null;
+    if (!['messages', 'contacts', 'posts'].includes(state.currentPage)) return null;
+    if (state.currentPage === 'messages' && state.currentChatContact) return null;
+    if (state.currentPage === 'contacts' && (state.showGroupManager || state.showFriendRequests)) return null;
+    if (typeof renderMessageSearchPageContent !== 'function') return null;
+    return renderMessageSearchPageContent();
 }
 
 function renderContent() {
@@ -80,24 +129,13 @@ function renderContent() {
     if (state.currentProfileContact) {
         return renderProfilePage();
     }
+    const searchContent = renderGlobalSearchContentIfOpen();
+    if (searchContent) {
+        return searchContent;
+    }
     if (state.currentPage === 'messages') {
         if (state.currentChatContact) {
             return renderChatInterface();
-        }
-        if (state.messageSearchOpen) {
-            if (state.messageSearchSubView === 'contacts') {
-                return renderMessageSearchContactsMore();
-            }
-            if (state.messageSearchSubView === 'chats') {
-                return renderMessageSearchChatsMore();
-            }
-            if (state.messageSearchSubView === 'groups') {
-                return renderMessageSearchGroupsMore();
-            }
-            if (state.messageSearchSubView === 'chatDetail') {
-                return renderMessageSearchChatDetail();
-            }
-            return renderMessageSearchMain();
         }
         return renderChatList();
     } else if (state.currentPage === 'contacts') {
@@ -134,18 +172,26 @@ function renderContent() {
         }
         return `
             <div class="chat-content chat-scroll-host">
+                ${renderMessageListSearchBar()}
                 <div class="contacts-page chat-scroll-body">
                     ${renderContactsContent()}
                 </div>
             </div>
         `;
+    } else if (state.currentPage === 'channels') {
+        return typeof renderChannelsPage === 'function' ? renderChannelsPage() : '';
     } else {
         return `
-            <div class="chat-content">
-                <div class="posts-page">
+            <div class="chat-content chat-scroll-host">
+                ${renderMessageListSearchBar()}
+                <div class="posts-page chat-scroll-body">
                     <div class="post-card">
-                        <div class="post-item">
+                        <div class="post-item post-item-bordered" onclick="alert('空间动态功能开发中')">
                             <span class="post-title">空间动态</span>
+                            <span>›</span>
+                        </div>
+                        <div class="post-item" onclick="alert('药圃功能开发中')">
+                            <span class="post-title">前往药圃</span>
                             <span>›</span>
                         </div>
                     </div>
@@ -274,11 +320,14 @@ function renderForwardRecordPage() {
 function renderBottomNav() {
     const totalUnread = Object.values(state.unreadMessages).reduce((sum, count) => sum + count, 0);
     const isMessages = state.currentPage === 'messages';
+    const isChannels = state.currentPage === 'channels';
     const isContacts = state.currentPage === 'contacts';
     const isPosts = state.currentPage === 'posts';
     const messageIcon = isMessages
         ? 'https://img.heliar.top/file/1779413261667_message-2-fill.svg'
         : 'https://img.heliar.top/file/1779413265756_message-2-line.svg';
+    const channelsIcon =
+        'https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/Editor/hashtag.svg';
     const contactsIcon = isContacts
         ? 'https://img.heliar.top/file/1779413262148_user-3-fill.svg'
         : 'https://img.heliar.top/file/1779413265763_user-3-line.svg';
@@ -299,6 +348,10 @@ function renderBottomNav() {
                     ${totalUnread > 0 ? `<div class="nav-unread-badge">${totalUnread}</div>` : ''}
                 </div>
                 <span>消息</span>
+            </div>
+            <div class="nav-item nav-item-channels ${isChannels ? 'active' : ''}" onclick="switchPage('channels')">
+                <span class="nav-icon-svg" style="--icon-url:url('${channelsIcon}')"></span>
+                <span>频道</span>
             </div>
             <div class="nav-item ${isContacts ? 'active' : ''}" onclick="switchPage('contacts')"><span class="nav-icon-svg" style="--icon-url:url('${contactsIcon}')"></span> <span>联系人</span></div>
             <div class="nav-item ${isPosts ? 'active' : ''}" onclick="switchPage('posts')"><span class="nav-icon-svg" style="--icon-url:url('${postsIcon}')"></span> <span>动态</span></div>

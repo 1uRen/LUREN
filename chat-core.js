@@ -40,7 +40,7 @@ function initChatApp() {
 
     const container = document.querySelector('.iphone-container');
     if (!container) return;
-    document.body.classList.remove('mode-home', 'mode-settings');
+    document.body.classList.remove('mode-home', 'mode-chat', 'mode-settings', 'mode-decorate');
     document.body.classList.add('mode-chat');
     container.style.height = '';
     container.style.paddingBottom = '';
@@ -54,6 +54,9 @@ function initChatApp() {
     }
     if (typeof syncIosBottomFill === 'function') {
         requestAnimationFrame(syncIosBottomFill);
+    }
+    if (typeof mountStatusBar === 'function') {
+        requestAnimationFrame(mountStatusBar);
     }
 
     if (shouldRestoreMessageSearchFocus) {
@@ -205,6 +208,18 @@ function initChatApp() {
                 const chanceDisplay = addChanceSlider.parentElement.querySelector('span:last-child');
                 if (chanceDisplay) {
                     chanceDisplay.textContent = this.value + '%';
+                }
+            });
+        }
+
+        const friendNickInput = document.getElementById('friendNick');
+        if (friendNickInput && state.showCreateContactModal) {
+            friendNickInput.addEventListener('input', function() {
+                state.newFriend.name = this.value || '';
+                if (isCustomContactAvatar(state.newFriend.avatar)) return;
+                const initialEl = document.querySelector('.avatar-pick-placeholder-initial');
+                if (initialEl) {
+                    initialEl.textContent = getContactNameInitial(this.value);
                 }
             });
         }

@@ -49,13 +49,29 @@ function rejectFriendRequest(index) {
 
 function openCreateContactModal() {
     state.showCreateContactModal = true;
-    state.newFriend = { avatar: DEFAULT_CONTACT_AVATAR, name: '', qqId: '', gender: '', setting: '', group: '我的好友' };
+    state.newFriend = {
+        avatar: '',
+        avatarPlaceholderColor: pickLowSatAvatarColor(String(Date.now()) + Math.random()),
+        name: '',
+        qqId: '',
+        gender: '',
+        setting: '',
+        group: '我的好友'
+    };
     initChatApp();
 }
 
 function closeCreateContactModal() {
     state.showCreateContactModal = false;
-    state.newFriend = { avatar: DEFAULT_CONTACT_AVATAR, name: '', qqId: '', gender: '', setting: '', group: '我的好友' };
+    state.newFriend = {
+        avatar: '',
+        avatarPlaceholderColor: '',
+        name: '',
+        qqId: '',
+        gender: '',
+        setting: '',
+        group: '我的好友'
+    };
     initChatApp();
 }
 
@@ -78,7 +94,11 @@ function createContact() {
     }
     
     const newContact = {
-        avatar: state.newFriend.avatar || DEFAULT_CONTACT_AVATAR,
+        avatar: resolveContactAvatarSrc(
+            state.newFriend.name,
+            state.newFriend.avatar,
+            state.newFriend.avatarPlaceholderColor
+        ),
         name: state.newFriend.name,
         remark: state.newFriend.remark,
         qqId: state.newFriend.qqId,

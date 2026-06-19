@@ -186,6 +186,22 @@
 }
 .avatar-pick-btn-inline { flex-shrink:0; }
 .avatar-pick-img { display:block; width:80px; height:80px; border-radius:50%; object-fit:cover; pointer-events:none; }
+.avatar-pick-placeholder {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    pointer-events:none;
+}
+.avatar-pick-placeholder-initial {
+    font-size:32px;
+    font-weight:600;
+    color:#fff;
+    line-height:1;
+    user-select:none;
+}
 .nick-input { font-size:20px; font-weight:600; text-align:center; border:none; margin-top:12px; }
 .row-gap-10 { display:flex; gap:10px; }
 .input-flex { flex:1; }
@@ -569,4 +585,323 @@
 /* 聊天记录页面样式 */
 .forward-record-page .chat-messages {
     padding:12px;
+}
+
+/* ========== 频道（QQ 频道风格） ========== */
+.channels-header {
+    padding: 8px 12px;
+    background: #F0E8D4;
+    border-bottom: 1px solid #e5e5e5;
+    min-height: 44px;
+}
+
+.channels-header-side {
+    width: 72px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.channels-top-tabs {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    min-width: 0;
+}
+
+.channels-top-tab {
+    position: relative;
+    border: none;
+    background: transparent;
+    padding: 10px 4px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #8e8e93;
+    cursor: pointer;
+}
+
+.channels-top-tab.active {
+    color: #E48C64;
+    font-weight: 600;
+}
+
+.channels-top-tab.active::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+    background: #E48C64;
+}
+
+.channels-header-actions {
+    width: 72px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    color: #987754;
+}
+
+.channels-header-icon-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    padding: 0;
+    color: #987754;
+}
+
+.channels-header-icon-btn:active {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.channels-header-icon-btn .nav-icon-svg {
+    width: 22px;
+    height: 22px;
+}
+
+.nav-item.nav-item-channels.active {
+    color: #987754;
+}
+
+.channels-page-wrap {
+    background: var(--app-bg, #FAF6EB);
+}
+
+.channels-scroll-body {
+    padding-bottom: 8px;
+}
+
+.channels-feed-card {
+    background: #fff;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.channels-feed-channel-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.channels-feed-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.channels-feed-channel-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.channels-feed-channel-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d1d1f;
+}
+
+.channels-feed-time {
+    font-size: 11px;
+    color: #8e8e93;
+    margin-top: 2px;
+}
+
+.channels-feed-more {
+    border: none;
+    background: transparent;
+    color: #8e8e93;
+    font-size: 18px;
+    padding: 4px 8px;
+    cursor: pointer;
+}
+
+.channels-feed-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin: 0 0 6px;
+    line-height: 1.35;
+}
+
+.channels-feed-preview {
+    font-size: 14px;
+    color: #636366;
+    line-height: 1.5;
+    margin: 0 0 10px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+}
+
+.channels-feed-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: #8e8e93;
+}
+
+.channels-empty {
+    padding: 48px 24px;
+    text-align: center;
+}
+
+.channels-empty-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: #8e8e93;
+    margin: 0 0 8px;
+}
+
+.channels-empty-desc {
+    font-size: 13px;
+    color: #aeaeb2;
+    margin: 0 0 20px;
+}
+
+.channels-empty-btn {
+    border: none;
+    background: #E48C64;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 28px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.channels-recommend {
+    padding: 12px 0 0;
+}
+
+.channels-category-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 0 12px 12px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.channels-category-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.channels-category-chip {
+    flex-shrink: 0;
+    border: none;
+    background: #fff;
+    color: #636366;
+    font-size: 13px;
+    padding: 7px 14px;
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.channels-category-chip.active {
+    background: #E48C64;
+    color: #fff;
+    font-weight: 600;
+}
+
+.channels-discover-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 0 12px 12px;
+}
+
+.channels-discover-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.channels-discover-icon-wrap {
+    position: relative;
+    margin-bottom: 8px;
+}
+
+.channels-discover-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
+.channels-discover-hot {
+    position: absolute;
+    top: -4px;
+    right: -8px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    background: #ff3b30;
+    padding: 1px 5px;
+    border-radius: 6px;
+}
+
+.channels-discover-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+.channels-discover-desc {
+    font-size: 11px;
+    color: #8e8e93;
+    line-height: 1.4;
+    margin-bottom: 6px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    min-height: 30px;
+}
+
+.channels-discover-members {
+    font-size: 10px;
+    color: #aeaeb2;
+    margin-bottom: 10px;
+}
+
+.channels-discover-join {
+    border: none;
+    background: rgba(228, 140, 100, 0.12);
+    color: #E48C64;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 20px;
+    border-radius: 14px;
+    cursor: pointer;
 }

@@ -140,7 +140,7 @@ const MODULE_MAP = {
     ]),
     'chat-plus.js': new Set([
         'handleChatToolClick', 'togglePlusPanel', 'closePlusPanel', 'handleVoiceCall', 'handleVideoCall',
-        'handleRedPacket', 'handleTransfer', 'handleFavorite', 'handleLocation', 'handleFileSend', 'handleChatGlobalClick'
+        'handleRedPacket', 'handleTransfer', 'handleFavorite', 'handleLocation', 'handleFileSend', 'handleNarration', 'handleChatGlobalClick'
     ]),
     'chat-core.js': new Set([
         '$chatScrollRenderToken', 'initChatApp', 'attachListeners', 'goBack', 'switchPage'

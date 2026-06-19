@@ -5,14 +5,16 @@
     'use strict';
 
     var root = document.documentElement;
+
+    function getBody() {
+        return document.body;
+    }
     var KB_THRESHOLD = 80;
     var ACCESSORY_INSET_ANDROID = 48;
     var IOS_ACCESSORY_INSET_EMBEDDED = 44;
     var IOS_HOME_INDICATOR_FALLBACK = 34;
     var offsetSamples = [];
     var settleRafId = 0;
-    var iosKbBaselineHeight = 0;
-    var iosKbProbeTimer = 0;
 
     function detectOs() {
         var ua = navigator.userAgent || '';
@@ -21,12 +23,74 @@
         return 'other';
     }
 
+    function isIosDevice() {
+        var ua = navigator.userAgent || '';
+        return /iPad|iPhone|iPod/i.test(ua)
+            || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    }
+
     function isStandalone() {
         return (
             window.matchMedia('(display-mode: standalone)').matches ||
             window.matchMedia('(display-mode: fullscreen)').matches ||
-            navigator.standalone === true
+            navigator.standalone === true ||
+            (document.referrer && document.referrer.indexOf('android-app://') !== -1)
         );
+    }
+
+    function loadImmersiveModeSetting() {
+        if (typeof loadImmersiveMode === 'function') {
+            return loadImmersiveMode();
+        }
+        try {
+            var raw = localStorage.getItem('ai_chat_app_data');
+            if (raw) {
+                var data = JSON.parse(raw);
+                if (typeof data.immersiveMode === 'boolean') {
+                    return data.immersiveMode;
+                }
+                if (data.displayMode === 'shell') return false;
+            }
+        } catch (e) { /* ignore */ }
+        return true;
+    }
+
+    function shouldUsePreviewShell() {
+        return !loadImmersiveModeSetting();
+    }
+
+    function applyBodyClasses() {
+        var os = detectOs();
+        var previewShell = shouldUsePreviewShell();
+        var immersive = !previewShell;
+        var b = getBody();
+
+        root.classList.toggle('preview-shell', previewShell);
+        root.dataset.immersive = immersive ? 'true' : 'false';
+
+        if (!b) return;
+
+        b.classList.toggle('is-app', immersive);
+        b.classList.toggle('ios-standalone', os === 'ios' && navigator.standalone === true);
+    }
+
+    function applyDisplayMode() {
+        applyBodyClasses();
+        scheduleLayoutRefresh(true);
+        var b = getBody();
+        if (!b) return;
+        if (typeof initChatApp === 'function' && b.classList.contains('mode-chat')) {
+            initChatApp();
+        } else if (typeof initSettingsApp === 'function' && b.classList.contains('mode-settings')) {
+            initSettingsApp();
+        } else if (typeof initDecorateApp === 'function' && b.classList.contains('mode-decorate')) {
+            initDecorateApp();
+        } else if (b.classList.contains('mode-home')) {
+            scheduleLayoutRefresh(true);
+        }
+        if (typeof mountStatusBar === 'function') {
+            mountStatusBar();
+        }
     }
 
     function detectKeyboardStrategy() {
@@ -38,8 +102,7 @@
 
     function detectIosKeyboardMode() {
         if (detectOs() !== 'ios') return 'none';
-        if (!isStandalone()) return 'visual-fixed';
-        return 'layout-resize';
+        return 'visual-fixed';
     }
 
     function isChatComposerField(el) {
@@ -48,6 +111,7 @@
 
     function detectTier() {
         var w = window.innerWidth;
+        if (shouldUsePreviewShell()) return 'regular';
         if (w <= 375) return 'compact';
         if (w <= 430) return 'regular';
         return 'large';
@@ -102,34 +166,53 @@
     }
 
     function syncIosBottomFill() {
-        if (detectOs() !== 'ios') return;
-        var body = document.body;
+        var os = detectOs();
+        if (os !== 'ios' && os !== 'android') return;
+        var b = getBody();
+        if (!b) return;
         var fill = '#FAF6EB';
-        if (body.classList.contains('mode-home')) {
+        var shellBg = '#FAF6EB';
+
+        if (b.classList.contains('mode-home')) {
             fill = '#e8e4dc';
-        } else if (body.classList.contains('mode-settings')) {
+            shellBg = '#e8e4dc';
+        } else if (b.classList.contains('mode-settings') || b.classList.contains('mode-decorate')) {
             fill = '#f5f5f7';
+            shellBg = '#f5f5f7';
+        } else if (document.querySelector('.wallet-page')) {
+            fill = '#f5f5f7';
+            shellBg = '#f5f5f7';
+        } else if (document.querySelector('.profile-page') || document.querySelector('.signature-history-page')) {
+            fill = '#FAF6EB';
+            shellBg = '#FAF6EB';
         } else if (document.querySelector('.chat-fullscreen')) {
             var plus = document.querySelector('.chat-composer .plus-sheet');
             var sticker = document.querySelector('.chat-composer .sticker-sheet');
             fill = (plus || sticker) ? '#fff9ef' : '#F0E8D4';
+            shellBg = '#FAF6EB';
         } else if (document.querySelector('.bottom-nav')) {
             fill = '#F0E8D4';
+            shellBg = '#F0E8D4';
             root.style.setProperty('--ios-tab-shell-bg', '#F0E8D4');
-        } else if (document.querySelector('.wallet-page')) {
-            fill = '#f5f5f7';
-        } else if (document.querySelector('.profile-page')) {
-            fill = '#FAF6EB';
         }
+
         root.style.setProperty('--ios-bottom-fill', fill);
+        root.style.setProperty('--ios-shell-bg', shellBg);
         if (!document.querySelector('.bottom-nav')) {
             root.style.removeProperty('--ios-tab-shell-bg');
         }
+
         var themeMeta = document.querySelector('meta[name="theme-color"]');
-        if (themeMeta && body.classList.contains('mode-home')) {
-            themeMeta.setAttribute('content', '#e8e4dc');
-        } else if (themeMeta && body.classList.contains('mode-chat')) {
-            themeMeta.setAttribute('content', '#FAF6EB');
+        if (!themeMeta) return;
+        if (b.classList.contains('mode-home')) {
+            themeMeta.setAttribute('content', '#eceef2');
+        } else if (b.classList.contains('mode-settings') || b.classList.contains('mode-decorate')) {
+            themeMeta.setAttribute('content', '#f5f5f7');
+        } else if (b.classList.contains('mode-chat')) {
+            themeMeta.setAttribute(
+                'content',
+                document.querySelector('.bottom-nav') ? '#F0E8D4' : '#FAF6EB'
+            );
         }
     }
 
@@ -164,6 +247,10 @@
     function isKeyboardLikelyOpen() {
         var vv = window.visualViewport;
         if (!vv) return false;
+        if (detectOs() === 'ios') {
+            return (window.screen.height - vv.height) > 150
+                || window.innerHeight - vv.height - (vv.offsetTop || 0) > KB_THRESHOLD;
+        }
         return window.innerHeight - vv.height - (vv.offsetTop || 0) > KB_THRESHOLD;
     }
 
@@ -179,7 +266,46 @@
         return top;
     }
 
+    function updateAppViewportVars() {
+        var os = detectOs();
+        var standalone = isStandalone();
+        var heightPx;
+
+        if (os === 'ios' && window.visualViewport) {
+            var vv = window.visualViewport;
+            var keyboardOpen = isKeyboardLikelyOpen();
+            if (keyboardOpen) {
+                heightPx = vv.height;
+            } else {
+                var candidates = [
+                    window.innerHeight,
+                    document.documentElement.clientHeight,
+                    vv.height
+                ];
+                if (standalone) candidates.push(window.screen.height);
+                heightPx = Math.max.apply(null, candidates.filter(function (n) { return n > 0; }));
+            }
+            lockIosViewportScroll();
+        } else {
+            heightPx = window.innerHeight;
+        }
+
+        if (heightPx > 0) {
+            root.style.setProperty('--app-height', heightPx + 'px');
+        }
+    }
+
+    function lockIosViewportScroll() {
+        if (!isIosDevice()) return;
+        window.scrollTo(0, 0);
+        if (b) b.scrollTop = 0;
+        if (document.documentElement) document.documentElement.scrollTop = 0;
+    }
+
     function applyLayout() {
+        updateAppViewportVars();
+        applyBodyClasses();
+
         var os = detectOs();
         var standalone = isStandalone();
         var tier = detectTier();
@@ -193,9 +319,7 @@
 
         if (os === 'ios') {
             root.dataset.iosContext = standalone ? 'standalone' : 'embedded';
-            if (!root.dataset.iosKeyboard) {
-                root.dataset.iosKeyboard = detectIosKeyboardMode();
-            }
+            root.dataset.iosKeyboard = detectIosKeyboardMode();
         } else {
             delete root.dataset.iosContext;
             delete root.dataset.iosKeyboard;
@@ -235,10 +359,8 @@
         root.style.setProperty('--safe-right', safe.right + 'px');
         root.style.setProperty('--safe-bottom', safe.bottom + 'px');
         root.style.setProperty('--safe-left', safe.left + 'px');
-        root.style.setProperty(
-            '--safe-bottom-effective',
-            'max(' + safe.bottom + 'px, env(safe-area-inset-bottom, 0px))'
-        );
+        root.style.setProperty('--safe-top-effective', safe.top + 'px');
+        root.style.setProperty('--safe-bottom-effective', safe.bottom + 'px');
 
         var homePadExtra = standalone ? 8 : (os === 'ios' ? 12 : 8);
         root.style.setProperty('--home-time-pad-top', homePadExtra + 'px');
@@ -276,7 +398,10 @@
     }
 
     function resetViewportScroll() {
-        if (detectOs() === 'ios') return;
+        if (detectOs() === 'ios') {
+            lockIosViewportScroll();
+            return;
+        }
         if (window.scrollY !== 0 || window.scrollX !== 0) {
             window.scrollTo(0, 0);
         }
@@ -291,12 +416,16 @@
 
     function updateIosVisualViewportVars() {
         var vv = window.visualViewport;
+        var keyboardOpen = isKeyboardLikelyOpen();
         var bottom = 0;
-        if (vv) {
+
+        if (vv && keyboardOpen) {
             bottom = Math.max(0, (window.innerHeight || 0) - vv.height - (vv.offsetTop || 0));
         }
+
         root.style.setProperty('--vv-bottom', bottom + 'px');
-        var accessory = root.dataset.iosContext === 'embedded' ? IOS_ACCESSORY_INSET_EMBEDDED : 0;
+        var focused = isChatComposerField(document.activeElement);
+        var accessory = focused && bottom > 12 ? IOS_ACCESSORY_INSET_EMBEDDED : 0;
         root.style.setProperty('--ios-accessory-inset', accessory + 'px');
         return bottom;
     }
@@ -327,7 +456,10 @@
         delete root.dataset.input;
         root.style.setProperty('--keyboard-offset', '0px');
         root.style.setProperty('--input-accessory-inset', '0px');
-        root.style.setProperty('--vv-bottom', '0px');
+        if (!isKeyboardLikelyOpen()) {
+            root.style.setProperty('--vv-bottom', '0px');
+            root.style.setProperty('--ios-accessory-inset', '0px');
+        }
     }
 
     function isTextInputFocused() {
@@ -337,26 +469,30 @@
 
     function applyIosKeyboardOffset(forceStable) {
         var focused = isChatComposerField(document.activeElement);
-        var open = focused && document.body.classList.contains('mode-chat');
+        var keyboardOpen = isKeyboardLikelyOpen();
+        var open = focused && getBody() && getBody().classList.contains('mode-chat') && keyboardOpen;
         var mode = root.dataset.iosKeyboard || detectIosKeyboardMode();
 
         if (mode === 'visual-fixed') {
-            var bottom = updateIosVisualViewportVars();
+            updateIosVisualViewportVars();
+            updateAppViewportVars();
             root.style.setProperty('--keyboard-offset', '0px');
             root.style.setProperty('--input-accessory-inset', '0px');
-            if (open && (bottom > 20 || forceStable)) {
+            if (open) {
                 root.dataset.input = 'keyboard-open';
                 root.classList.add('keyboard-offset-ready');
                 measureChatComposerHeight();
-            } else if (!open) {
+            } else {
                 clearKeyboardState();
             }
             return;
         }
 
         root.style.setProperty('--keyboard-offset', '0px');
-        root.style.setProperty('--vv-bottom', '0px');
-        root.style.setProperty('--ios-accessory-inset', '0px');
+        if (!keyboardOpen) {
+            root.style.setProperty('--vv-bottom', '0px');
+            root.style.setProperty('--ios-accessory-inset', '0px');
+        }
         if (open) {
             root.dataset.input = 'keyboard-open';
             root.classList.add('keyboard-offset-ready');
@@ -382,7 +518,7 @@
         var offset = computeKeyboardOffset();
         var focused = isTextInputFocused();
         var open = strategy === 'layout-resize'
-            ? focused && document.body.classList.contains('mode-chat')
+            ? focused && getBody() && getBody().classList.contains('mode-chat')
             : offset > KB_THRESHOLD;
 
         if (strategy === 'layout-resize') {
@@ -425,31 +561,27 @@
         root.classList.add('keyboard-offset-ready');
     }
 
-    function probeIosLayoutResize() {
-        if (detectOs() !== 'ios' || root.dataset.iosKeyboard !== 'layout-resize') return;
-        if (window.innerHeight > iosKbBaselineHeight - 60) {
-            root.dataset.iosKeyboard = 'visual-fixed';
-            applyIosKeyboardOffset(true);
-            measureChatComposerHeight();
-            scrollChatToBottom();
-        }
-    }
-
     function settleKeyboardAfterFocus() {
         if (settleRafId) cancelAnimationFrame(settleRafId);
         resetOffsetSamples();
         root.classList.remove('keyboard-offset-ready');
 
         if (detectOs() === 'ios') {
+            root.dataset.iosKeyboard = 'visual-fixed';
             applyIosKeyboardOffset(false);
-            settleRafId = requestAnimationFrame(function () {
+            var frame = 0;
+            function iosStep() {
+                frame += 1;
                 applyIosKeyboardOffset(true);
                 measureChatComposerHeight();
-                scrollChatToBottom();
-                settleRafId = 0;
-            });
-            if (iosKbProbeTimer) clearTimeout(iosKbProbeTimer);
-            iosKbProbeTimer = setTimeout(probeIosLayoutResize, 120);
+                if (frame < 8) {
+                    settleRafId = requestAnimationFrame(iosStep);
+                } else {
+                    settleRafId = 0;
+                    scrollChatToBottom();
+                }
+            }
+            settleRafId = requestAnimationFrame(iosStep);
             return;
         }
 
@@ -484,10 +616,17 @@
 
     function onComposerViewportChange() {
         if (detectOs() === 'ios') {
-            if (!isChatComposerField(document.activeElement)) return;
-            applyIosKeyboardOffset(true);
-            measureChatComposerHeight();
-            requestAnimationFrame(scrollChatToBottom);
+            updateAppViewportVars();
+            updateIosVisualViewportVars();
+            if (document.querySelector('.chat-fullscreen .chat-composer')) {
+                measureChatComposerHeight();
+            }
+            if (isChatComposerField(document.activeElement)) {
+                applyIosKeyboardOffset(true);
+                requestAnimationFrame(scrollChatToBottom);
+            } else if (!isKeyboardLikelyOpen()) {
+                clearKeyboardState();
+            }
             return;
         }
         if (!isChatComposerField(document.activeElement)) return;
@@ -507,6 +646,9 @@
     var debouncedKeyboard = debounce(function () {
         applyKeyboardOffset(true);
     }, 50);
+    var debouncedViewportVars = debounce(function () {
+        updateAppViewportVars();
+    }, 200);
 
     function scheduleLayoutRefresh(full) {
         applyLayout();
@@ -517,7 +659,25 @@
         }
     }
 
-    scheduleLayoutRefresh(false);
+    function initTouchGuards() {
+        document.addEventListener('touchmove', function (event) {
+            if (event.touches && event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+    }
+
+    function bootstrapRuntime() {
+        scheduleLayoutRefresh(false);
+    }
+
+    initTouchGuards();
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootstrapRuntime);
+    } else {
+        bootstrapRuntime();
+    }
 
     window.addEventListener('resize', debouncedLayout);
     window.addEventListener('orientationchange', function () {
@@ -548,6 +708,7 @@
 
     if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', function () {
+            debouncedViewportVars();
             if (detectOs() === 'ios') {
                 onComposerViewportChange();
                 return;
@@ -560,7 +721,11 @@
             debouncedKeyboard();
         });
         window.visualViewport.addEventListener('scroll', function () {
-            if (detectOs() === 'ios') return;
+            if (detectOs() === 'ios') {
+                lockIosViewportScroll();
+                onComposerViewportChange();
+                return;
+            }
             var strategy = root.dataset.keyboardStrategy || detectKeyboardStrategy();
             if (strategy === 'layout-resize') return;
             if (root.dataset.input === 'keyboard-open' || document.activeElement && /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) {
@@ -587,7 +752,7 @@
         var tag = e.target && e.target.tagName;
         if (tag !== 'INPUT' && tag !== 'TEXTAREA') return;
         if (detectOs() === 'ios' && isChatComposerField(e.target)) {
-            iosKbBaselineHeight = window.innerHeight;
+            root.dataset.iosKeyboard = 'visual-fixed';
             root.classList.remove('keyboard-offset-ready');
             settleKeyboardAfterFocus();
             return;
@@ -603,21 +768,23 @@
     document.addEventListener('focusout', function (e) {
         var tag = e.target && e.target.tagName;
         if (tag !== 'INPUT' && tag !== 'TEXTAREA') return;
-        if (iosKbProbeTimer) {
-            clearTimeout(iosKbProbeTimer);
-            iosKbProbeTimer = 0;
-        }
         setTimeout(function () {
             resetOffsetSamples();
             root.classList.remove('keyboard-offset-ready');
-            if (detectOs() === 'ios' && !isTextInputFocused()) {
-                root.dataset.iosKeyboard = detectIosKeyboardMode();
+            if (detectOs() === 'ios') {
+                if (!isTextInputFocused() && !isKeyboardLikelyOpen()) {
+                    clearKeyboardState();
+                }
+                applyIosKeyboardOffset(true);
+                updateAppViewportVars();
+            } else {
+                applyKeyboardOffset(true);
             }
-            applyKeyboardOffset(true);
         }, 120);
     });
 
     window.measureChatComposerHeight = measureChatComposerHeight;
     window.resetViewportScroll = resetViewportScroll;
     window.syncIosBottomFill = syncIosBottomFill;
+    window.applyDisplayMode = applyDisplayMode;
 })();

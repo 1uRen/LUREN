@@ -1,6 +1,7 @@
 // chat-render-wallet module
 function renderWalletPage() {
     const balance = state.walletBalance || 0;
+    const canCollect = typeof canCollectWalletReward === 'function' ? canCollectWalletReward() : true;
     
     return `
         <div class="wallet-page">
@@ -10,10 +11,10 @@ function renderWalletPage() {
                         <div class="wallet-balance-label">余额</div>
                         <div class="wallet-balance-amount">¥ ${balance.toFixed(2)}</div>
                     </div>
-                    <button class="wallet-collect-btn" onclick="collectReward()">
+                    <button class="wallet-collect-btn" onclick="collectReward()" ${canCollect ? '' : 'disabled'}>
                         <span class="wallet-collect-icon">🎁</span>
-                        <span class="wallet-collect-text">领福利</span>
-                        <span class="wallet-collect-red-dot"></span>
+                        <span class="wallet-collect-text">${canCollect ? '领福利' : '今日已领'}</span>
+                        ${canCollect ? '<span class="wallet-collect-red-dot"></span>' : ''}
                     </button>
                 </div>
             </div>

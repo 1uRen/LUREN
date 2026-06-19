@@ -26,7 +26,7 @@ function renderSidebar() {
                     ${hasWalletRedDot ? '<span class="wallet-red-dot"></span>' : ''}
                 </div>
                 <div class="menu-item"><span class="menu-icon-svg" style="--icon-url:url('https://img.heliar.top/file/1779414606253_folder-open-fill.svg')"></span>我的文件</div>
-                <div class="menu-item"><span class="menu-icon-svg" style="--icon-url:url('https://img.heliar.top/file/1779414602934_draw-fill.svg')"></span>个性装扮</div>
+                <div class="menu-item" onclick="openDecorateApp()"><span class="menu-icon-svg" style="--icon-url:url('https://img.heliar.top/file/1779414602934_draw-fill.svg')"></span>个性装扮</div>
                 <div class="menu-item"><span class="menu-icon-svg" style="--icon-url:url('https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/Health%20%26%20Medical/heart-fill.svg')"></span>我的收藏</div>
                 <div class="menu-item"><span class="menu-icon-svg" style="--icon-url:url('https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/System/settings-3-fill.svg')"></span>我的设置</div>
             </div>

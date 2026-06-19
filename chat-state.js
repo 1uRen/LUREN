@@ -25,7 +25,8 @@ const state = {
     keepAddFriendInputFocusNextRender: false,
     addFriendAddedQQs: [],
     newFriend: {
-        avatar: DEFAULT_CONTACT_AVATAR,
+        avatar: '',
+        avatarPlaceholderColor: '',
         name: '',
         qqId: '',
         gender: '',
@@ -143,7 +144,8 @@ const state = {
     transferDraftNote: '',
     transferDetailId: null,
     redPacketOpenId: null,
-    redPacketAnimPhase: null
+    redPacketAnimPhase: null,
+    channelsTab: 'recommend'
 };
 
 const LIKE_ICON_OUTLINE = 'https://img.heliar.top/file/1779414610160_thumb-up-line.svg';

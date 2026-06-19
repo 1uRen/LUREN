@@ -89,7 +89,8 @@ function renderPlusPanel() {
         { id: 'transfer', icon: 'https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/Finance/exchange-cny-line.svg', label: '转账', action: 'handleTransfer()' },
         { id: 'favorite', icon: 'https://img.heliar.top/file/1779432073471_heart-fill.svg', label: '收藏', action: 'handleFavorite()' },
         { id: 'location', icon: 'https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/Map/map-pin-fill.svg', label: '位置共享', action: 'handleLocation()' },
-        { id: 'file-send', icon: 'https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/Document/folder-2-fill.svg', label: '文件发送', action: 'handleFileSend()' }
+        { id: 'file-send', icon: 'https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/Document/folder-2-fill.svg', label: '文件发送', action: 'handleFileSend()' },
+        { id: 'narration', icon: 'https://cdn.jsdelivr.net/npm/remixicon@4.9.1/icons/User%20%26%20Faces/user-voice-fill.svg', label: '旁白', action: 'handleNarration()' }
     ];
 
     return `
@@ -123,12 +124,7 @@ function renderChatList() {
 
     return `
         <div class="chat-content chat-scroll-host" onclick="hideContextMenu(event)">
-            <div class="message-list-search-wrap">
-                <button type="button" class="message-list-search-trigger" onclick="openMessageSearchPage()">
-                    <span class="message-list-search-icon">⌕</span>
-                    <span class="message-list-search-placeholder">搜索</span>
-                </button>
-            </div>
+            ${renderMessageListSearchBar()}
             <div class="chat-list chat-scroll-body">
                 ${sortedChats.length ? sortedChats.map(chat => {
                     const originalIndex = state.chats.indexOf(chat);
@@ -156,7 +152,7 @@ function renderChatList() {
                         </div>
                     </div>
                     `;
-                }).join('') : '<div class="empty-state-text">暂无聊天</div>'}
+                }).join('') : '<div class="channels-empty"><p class="channels-empty-title">暂无聊天</p></div>'}
             </div>
             ${renderContextMenu()}
         </div>

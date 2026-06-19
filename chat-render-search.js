@@ -1,4 +1,31 @@
 // chat-render-search module
+function renderMessageListSearchBar() {
+    return `
+        <div class="message-list-search-wrap">
+            <button type="button" class="message-list-search-trigger" onclick="openMessageSearchPage()">
+                <span class="message-list-search-icon">⌕</span>
+                <span class="message-list-search-placeholder">搜索</span>
+            </button>
+        </div>
+    `;
+}
+
+function renderMessageSearchPageContent() {
+    if (state.messageSearchSubView === 'contacts') {
+        return renderMessageSearchContactsMore();
+    }
+    if (state.messageSearchSubView === 'chats') {
+        return renderMessageSearchChatsMore();
+    }
+    if (state.messageSearchSubView === 'groups') {
+        return renderMessageSearchGroupsMore();
+    }
+    if (state.messageSearchSubView === 'chatDetail') {
+        return renderMessageSearchChatDetail();
+    }
+    return renderMessageSearchMain();
+}
+
 function renderMessageSearchTop(keyword, options = {}) {
     const { showBack = false, showCancel = true } = options;
     return `

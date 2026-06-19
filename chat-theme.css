@@ -48,6 +48,11 @@
     color:#ffffff;
 }
 
+.chat-app .avatar-pick-placeholder-initial {
+    color:#ffffff !important;
+    -webkit-text-fill-color:#ffffff !important;
+}
+
 .chat-app .notification-badge {
     color:#ffffff;
 }

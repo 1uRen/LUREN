@@ -75,7 +75,7 @@ function renderModals() {
                         <div class="form-group">
                             <div class="avatar-pick-wrap">
                                 <button type="button" class="avatar-pick-btn" onclick="openFriendAvatarFilePicker()" aria-label="选择头像">
-                                    <img class="avatar-preview avatar-pick-img" src="${state.newFriend.avatar || DEFAULT_CONTACT_AVATAR}" alt="">
+                                    ${renderCreateContactAvatarInner(state.newFriend)}
                                 </button>
                                 <input class="edit-input nick-input" id="friendNick" value="${state.newFriend.name || ''}" placeholder="昵称">
                             </div>

@@ -6,14 +6,14 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "theme_color": "#e8e4dc",
-  "background_color": "#e8e4dc",
+  "theme_color": "#eceef2",
+  "background_color": "#eceef2",
   "icons": [
     {
-      "src": "./pwa-icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "./pwa-icon.png",
+      "sizes": "576x575",
+      "type": "image/png",
+      "purpose": "any"
     }
   ]
 }

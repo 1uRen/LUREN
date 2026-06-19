@@ -1,4 +1,4 @@
-const CACHE_NAME = "xiaoshouji-pwa-v32";
+const CACHE_NAME = "xiaoshouji-pwa-v131";
 
 function isAppShellRequest(request) {
   if (request.method !== "GET") return false;
@@ -6,7 +6,7 @@ function isAppShellRequest(request) {
   if (url.origin !== self.location.origin) return false;
   if (url.pathname.endsWith("/service-worker.js")) return false;
   if (url.pathname.endsWith("/") || url.pathname.endsWith(".html")) return true;
-  return /\.(js|css|webmanifest|svg)$/i.test(url.pathname);
+  return /\.(js|css|webmanifest|svg|png|webp|ico)$/i.test(url.pathname);
 }
 
 function isNavigationRequest(request) {

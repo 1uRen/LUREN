@@ -75,6 +75,11 @@ function handleFileSend() {
     alert('文件发送功能开发中');
 }
 
+function handleNarration() {
+    closePlusPanel();
+    alert('旁白功能开发中');
+}
+
 function handleChatGlobalClick(event) {
     const target = event?.target;
     if (!target) return;

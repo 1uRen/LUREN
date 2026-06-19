@@ -1,0 +1,169 @@
+:root {
+    --status-bar-content-height: 22px;
+    --status-bar-total: calc(var(--safe-top-effective, env(safe-area-inset-top, 0px)) + var(--status-bar-content-height) + 8px);
+}
+
+/* 透明叠层：只显示时间/电量/信号，背景由下方顶栏延伸 */
+.system-status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 300;
+    height: var(--status-bar-total);
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 16px 4px;
+    box-sizing: border-box;
+    background: transparent !important;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    color: #111;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body.mode-home .system-status-bar {
+    color: #1d1d1f;
+}
+
+.system-status-bar-time {
+    flex: 0 0 auto;
+    min-width: 40px;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.system-status-bar-right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.system-status-signal {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 1.5px;
+    height: 10px;
+}
+
+.system-status-signal span {
+    display: block;
+    width: 2.5px;
+    border-radius: 1px;
+    background: currentColor;
+}
+
+.system-status-signal span:nth-child(1) { height: 3px; }
+.system-status-signal span:nth-child(2) { height: 5px; }
+.system-status-signal span:nth-child(3) { height: 7px; }
+.system-status-signal span:nth-child(4) { height: 9px; }
+
+.system-status-battery {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.system-status-battery-shell {
+    position: relative;
+    width: 24px;
+    height: 11px;
+    border: 1.5px solid currentColor;
+    border-radius: 2px;
+    box-sizing: border-box;
+}
+
+.system-status-battery-shell::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    right: -3px;
+    width: 2px;
+    height: 5px;
+    border-radius: 0 1px 1px 0;
+    background: currentColor;
+}
+
+.system-status-battery-level {
+    display: block;
+    height: 100%;
+    max-width: 100%;
+    background: currentColor;
+    border-radius: 1px;
+}
+
+html[data-status-bar="off"] .system-status-bar {
+    display: none !important;
+}
+
+/* 主屏：壁纸透过透明状态栏 */
+html[data-status-bar="on"] body.mode-home .iphone-container {
+    padding-top: var(--status-bar-total) !important;
+}
+
+html.preview-shell[data-status-bar="on"] body.mode-home .iphone-container {
+    padding-top: var(--status-bar-total) !important;
+}
+
+/* 内页：容器预留状态栏高度 */
+html[data-status-bar="on"] body.mode-chat .iphone-container,
+html[data-status-bar="on"] body.mode-settings .iphone-container,
+html[data-status-bar="on"] body.mode-decorate .iphone-container {
+    padding-top: var(--status-bar-total);
+    box-sizing: border-box;
+}
+
+/* 应用壳整体上移，顶栏才能填满状态栏预留区（否则只看到壁纸/底色） */
+html[data-status-bar="on"] body.mode-chat .iphone-container > .chat-app,
+html[data-status-bar="on"] body.mode-settings .iphone-container > .settings-app,
+html[data-status-bar="on"] body.mode-decorate .iphone-container > .decorate-app {
+    margin-top: calc(-1 * var(--status-bar-total));
+}
+
+/* 顶栏背景向上延伸：只加 padding，不再负 margin（避免被 .chat-app overflow 裁切） */
+html[data-status-bar="on"] .chat-header,
+html[data-status-bar="on"] .channels-header,
+html[data-status-bar="on"] .decorate-header,
+html[data-status-bar="on"] .settings-header,
+html[data-status-bar="on"] .group-manager-header {
+    padding-top: calc(var(--status-bar-total) + var(--header-pad-y, 10px)) !important;
+    box-sizing: border-box;
+}
+
+html[data-status-bar="on"] .decorate-header,
+html[data-status-bar="on"] .settings-header {
+    padding-top: calc(var(--status-bar-total) + 10px) !important;
+}
+
+html[data-status-bar="on"] .group-manager-header {
+    padding-top: calc(var(--status-bar-total) + 15px) !important;
+}
+
+/* 全屏子页：整页背景延伸进状态栏区 */
+html[data-status-bar="on"] .message-search-page,
+html[data-status-bar="on"] .profile-page,
+html[data-status-bar="on"] .signature-history-page {
+    padding-top: var(--status-bar-total);
+    box-sizing: border-box;
+}
+
+html[data-status-bar="on"] .signature-history-header {
+    padding-top: 15px !important;
+}
+
+html[data-status-bar="on"] .profile-back-btn {
+    top: calc(var(--status-bar-total) + 8px);
+}
+
+html[data-status-bar="on"] .message-search-top {
+    padding-top: 8px;
+}
